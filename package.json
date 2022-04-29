@@ -1,14 +1,22 @@
 {
   "name": "monopoly",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Projet monopoly",
+  "main": "dist/index.js",
+  "types": "src/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "build": "tsc",
+    "prepare" : "npm run build",
+    "version": "npm run format && git add -A src",
+    "postversion": "git push && git push --tags"
   },
-  "keywords": [],
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/loki7even/MonopolyFunctions.git"
+  },
+  "keywords": ["Laisse le vide"],
+  "author": "Lounes Behloul, Soufian Oualla",
   "license": "ISC",
   "devDependencies": {
     "typescript": "^4.6.4"
