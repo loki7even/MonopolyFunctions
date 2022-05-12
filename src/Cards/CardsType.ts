@@ -4,6 +4,7 @@ import { Display } from "../Screen";
 interface CardType {
   name: string;
   description: string;
+  display: Display;
 }
 
 abstract class Passive implements CardType {
