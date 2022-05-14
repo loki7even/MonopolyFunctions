@@ -26,10 +26,6 @@ class Game {
     this.apiURL= apiURL;
     if(this.apiURL == undefined)
       this.players = players
-
-    
-    // else
-      // ws.send()
   }
 
   init(cards: Array<any>): void {
@@ -93,7 +89,6 @@ class Game {
       }
       if(cardObj != null) this.cards.push(cardObj)
     })
-    console.log(this.cards.length)
   }
   
 
@@ -139,9 +134,6 @@ class Game {
   }
 }
 
-// export default {
-  // Game,
-// };
-
-
-let game = new Game(Cards.Cards_json, [], undefined, 2)
+export default {
+  Game,
+};
