@@ -4,13 +4,12 @@ import { Passive } from "./CardsType";
 
 class Companies extends Passive {
   multiplier!: number[];
-  initialCost!: number;
 
   constructor(
     name: string,
     cost: number,
     multiplier: number[],
-    initialCost: number,
+    mortage: number,
     display: Display,
     owner?: PlayerType
   ) {
@@ -18,7 +17,7 @@ class Companies extends Passive {
     this.name = name;
     this.cost = cost;
     this.multiplier = multiplier;
-    this.initialCost = initialCost;
+    this.mortagePrice = mortage
     this.display = display;
     this.owner = owner;
   }

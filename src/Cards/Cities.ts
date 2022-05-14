@@ -3,7 +3,7 @@ import { Passive } from "./CardsType";
 
 class Cities extends Passive {
   rent: number[];
-  mortagePrice: number;
+  buildingCost: number
 
   constructor(
     name: string,
@@ -18,7 +18,8 @@ class Cities extends Passive {
     this.cost = cost;
     this.rent = rent;
     this.mortagePrice = mortagePrice;
-
+    this.buildingCost= buildingCost;
+  
     this.display = display;
   }
 }

@@ -11,6 +11,7 @@ abstract class Passive implements CardType {
   name!: string;
   owner?: PlayerType;
   cost!: number;
+  mortagePrice!: number;
   description!: string;
   display!: Display;
   private show() {
