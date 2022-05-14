@@ -27,3 +27,6 @@ class Companies extends Passive {
     return "fuck";
   }
 }
+
+
+export {Companies}

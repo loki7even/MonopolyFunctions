@@ -1,3 +1,4 @@
+import { Actions } from "../Cards/Actions";
 import { CardType, Passive } from "../Cards/CardsType";
 import PlayerActions from "./PlayerAction";
 import { PlayerType } from "./PlayerType";
@@ -21,18 +22,16 @@ class PlayerTurn {
         let cards = this.cards.filter((card) => {
             return card.display.position == this.player.display.position  
         })
+        
         if(cards.length!=1) throw new Error("To many cards");
         
         this.card = cards[0]
 
+        if(this.card as Actions) {
+            this.card = this.card as  Actions
+        } 
+        
         yield this.card
-
-        if(this.card as Passive) {
-            
-        } else 
-        {
-
-        }      
     }
 }
 

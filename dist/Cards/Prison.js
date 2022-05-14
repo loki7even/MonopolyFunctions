@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Prison = void 0;
 const Actions_1 = require("./Actions");
 class Prison extends Actions_1.Actions {
     constructor(name, actionType, description, display, owner) {
@@ -11,4 +12,5 @@ class Prison extends Actions_1.Actions {
         this.owner = owner;
     }
 }
+exports.Prison = Prison;
 //# sourceMappingURL=Prison.js.map

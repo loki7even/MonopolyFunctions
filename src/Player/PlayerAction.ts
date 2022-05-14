@@ -11,11 +11,12 @@ class PlayerActions
   launchdice(nbDice: number): [number[], number] {
     const dice: number[] = [];
     let sum = 0;
-    do {
+    while (nbDice > 0) {
       const rd = this.randomIntFromInterval(1, 6);
       dice.push(rd);
       sum += rd;
-    } while (nbDice-- >= 0);
+      nbDice--;
+    };
   
     return [dice, sum];
   }

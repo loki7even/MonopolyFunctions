@@ -20,3 +20,5 @@ class Prison extends Actions {
     this.owner = owner;
   }
 }
+
+export { Prison }

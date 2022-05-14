@@ -27,3 +27,5 @@ class Cities extends Passive {
     return "fuck";
   }
 }
+
+export { Cities }

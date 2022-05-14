@@ -1,1 +1,2 @@
-import { CardType, Passive } from "./CardsType";
+import { CardType, Passive  } from "./CardsType";
+import { Companies } from "./Companies"
