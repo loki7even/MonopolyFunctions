@@ -17,15 +17,11 @@ class Game {
   ias?: IA[];
   cards: CardType[] = [];
   ndBices: number;
-  apiURL?: string;
 
-  constructor(cards: Array<any>, players: PlayerType[], apiURL: string  | undefined, ndbices: number=2, ...partyParam: any) {
+  constructor(players: PlayerType[],cards: Array<any> = Cards.Cards_json, ndbices: number=2, ...partyParam: any) {
     this.players = players;
     this.init(cards);
     this.ndBices = ndbices
-    this.apiURL= apiURL;
-    if(this.apiURL == undefined)
-      this.players = players
   }
 
   init(cards: Array<any>): void {
