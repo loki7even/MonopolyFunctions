@@ -1,3 +1,4 @@
+import Cards from "./Cards";
 import { Actions } from "./Cards/Actions";
 import { CardType, Passive } from "./Cards/CardsType";
 import { Cities } from "./Cards/Cities";
@@ -14,28 +15,32 @@ interface IA {
 class Game {
   players?: PlayerType[];
   ias?: IA[];
-  cards!: CardType[];
+  cards: CardType[] = [];
   ndBices: number;
   apiURL?: string;
 
-  constructor(cards: string, players: PlayerType[], apiURL: string  | undefined, ndbices: number=2, ...partyParam: any) {
+  constructor(cards: Array<any>, players: PlayerType[], apiURL: string  | undefined, ndbices: number=2, ...partyParam: any) {
     this.players = players;
     this.init(cards);
     this.ndBices = ndbices
     this.apiURL= apiURL;
     if(this.apiURL == undefined)
       this.players = players
+
+    
     // else
       // ws.send()
   }
 
-  init(cards_json: string): void {
-    let cards = JSON.parse(cards_json)
-    for(let card of cards) {
+  init(cards: Array<any>): void {
+    
+    cards.forEach(card => {
 
-      switch (card.type.lower()) {
+      let cardObj: CardType | null = null;
+      
+      switch (card.type) {
         case "action":
-          card = new Actions(card.name, 
+          cardObj = new Actions(card.name, 
                               card.action, 
                               card.description,
                               {
@@ -43,11 +48,12 @@ class Game {
                                 color: card.color,
                                 frontImage: card.fg,
                                 position: card.pos
-                              })
+                              });
+          
           break;
 
         case "cities":
-          card = new Cities(card.name, 
+          cardObj = new Cities(card.name, 
                             card.cost, 
                             card.hotelPrice, 
                             card.housePrice, 
@@ -60,7 +66,7 @@ class Game {
                             })
           break;
         case "prison":
-          card = new Prison(card.name, 
+          cardObj = new Prison(card.name, 
                             card.action, 
                             card.description, {
                               backImage: card.bg,
@@ -70,8 +76,8 @@ class Game {
                             })
           break;
         
-        case "cp":
-            card = new Companies(card.name, 
+        case "companies":
+            cardObj = new Companies(card.name, 
                                 card.cost, 
                                 card.multiplier, // [4, 10], [25, 50, 100, 200] 
                                 card.initialCost,
@@ -85,9 +91,9 @@ class Game {
         default:
           break;
       }
-
-      this.cards.push(card)
-    }
+      if(cardObj != null) this.cards.push(cardObj)
+    })
+    console.log(this.cards.length)
   }
   
 
@@ -133,59 +139,9 @@ class Game {
   }
 }
 
-export default {
-  Game,
-};
-
-// let player: PlayerType = {
-//   name: "",
-//   dataBaseId: 0,
-//   bankAmount: 1500,
-//   display: {
-//     backImage: "",
-//     color: "",
-//     frontImage: "",
-//     position: 0
-//   }
+// export default {
+  // Game,
 // };
 
-// let actionCard5 : Actions = new Actions("", "", "", {
-//   backImage: "",
-//   color: "",
-//   frontImage: "",
-//   position: 5
-// });
-// let actionCard10 : Actions = new Actions("", "", "", {
-//   backImage: "",
-//   color: "",
-//   frontImage: "",
-//   position: 10
-// });
 
-// let actionCard15 : Actions = new Actions("", "", "", {
-//   backImage: "",
-//   color: "",
-//   frontImage: "",
-//   position: 15
-// });
-
-// let cards : Array<CardType>= [];
-
-// cards.push(actionCard5)
-// cards.push(actionCard10)
-// cards.push(actionCard15)
-
-// for (let index = 0; index < 20; index++) {
-//   if (index%5 != 0) {
-//     let cardPassive : Passive = new Companies("", 100, [1, 4, 10], 10, {
-//       backImage: "",
-//       color: "",
-//       frontImage: "",
-//       position: index
-//     })
-
-//     cards.push(cardPassive);
-    
-//   }
-  
-// }
+let game = new Game(Cards.Cards_json, [], undefined, 2)

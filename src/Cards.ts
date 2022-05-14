@@ -1,4 +1,4 @@
-let Cards_json = [
+let Cards_json : Array<any> = [
   {
     "type": "cities",
     "name": "Vire",
@@ -427,7 +427,7 @@ let Cards_json = [
       "pos": 0
     },
     {
-      "type": "action",
+      "type": "prison",
       "name": "jail",
       "actionType": "jail",
       "description": "Just pass or go Jail",

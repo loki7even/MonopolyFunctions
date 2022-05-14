@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const Cards_1 = __importDefault(require("./Cards"));
 const Actions_1 = require("./Cards/Actions");
 const Cities_1 = require("./Cards/Cities");
 const Companies_1 = require("./Cards/Companies");
@@ -10,6 +11,7 @@ const Prison_1 = require("./Cards/Prison");
 const PlayerTurn_1 = __importDefault(require("./Player/PlayerTurn"));
 class Game {
     constructor(cards, players, apiURL, ndbices = 2, ...partyParam) {
+        this.cards = [];
         this.players = players;
         this.init(cards);
         this.ndBices = ndbices;
@@ -19,12 +21,12 @@ class Game {
         // else
         // ws.send()
     }
-    init(cards_json) {
-        let cards = JSON.parse(cards_json);
-        for (let card of cards) {
-            switch (card.type.lower()) {
+    init(cards) {
+        cards.forEach(card => {
+            let cardObj = null;
+            switch (card.type) {
                 case "action":
-                    card = new Actions_1.Actions(card.name, card.action, card.description, {
+                    cardObj = new Actions_1.Actions(card.name, card.action, card.description, {
                         backImage: card.bg,
                         color: card.color,
                         frontImage: card.fg,
@@ -32,7 +34,7 @@ class Game {
                     });
                     break;
                 case "cities":
-                    card = new Cities_1.Cities(card.name, card.cost, card.hotelPrice, card.hotelPrice, card.hipoPrice, {
+                    cardObj = new Cities_1.Cities(card.name, card.cost, card.hotelPrice, card.housePrice, card.mortagePrice, {
                         backImage: card.bg,
                         color: card.color,
                         frontImage: card.fg,
@@ -40,15 +42,15 @@ class Game {
                     });
                     break;
                 case "prison":
-                    card = new Prison_1.Prison(card.name, card.action, card.description, {
+                    cardObj = new Prison_1.Prison(card.name, card.action, card.description, {
                         backImage: card.bg,
                         color: card.color,
                         frontImage: card.fg,
                         position: card.pos
                     });
                     break;
-                case "cp":
-                    card = new Companies_1.Companies(card.name, card.cost, card.multiplier, // [4, 10], [25, 50, 100, 200] 
+                case "companies":
+                    cardObj = new Companies_1.Companies(card.name, card.cost, card.multiplier, // [4, 10], [25, 50, 100, 200] 
                     card.initialCost, {
                         backImage: card.bg,
                         color: card.color,
@@ -59,8 +61,10 @@ class Game {
                 default:
                     break;
             }
-            this.cards.push(card);
-        }
+            if (cardObj != null)
+                this.cards.push(cardObj);
+        });
+        console.log(this.cards.length);
     }
     updateCards(cardsUpdate) {
         this.cards.map((card) => {
@@ -99,51 +103,8 @@ class Game {
         }*/
     }
 }
-exports.default = {
-    Game,
-};
-// let player: PlayerType = {
-//   name: "",
-//   dataBaseId: 0,
-//   bankAmount: 1500,
-//   display: {
-//     backImage: "",
-//     color: "",
-//     frontImage: "",
-//     position: 0
-//   }
+// export default {
+// Game,
 // };
-// let actionCard5 : Actions = new Actions("", "", "", {
-//   backImage: "",
-//   color: "",
-//   frontImage: "",
-//   position: 5
-// });
-// let actionCard10 : Actions = new Actions("", "", "", {
-//   backImage: "",
-//   color: "",
-//   frontImage: "",
-//   position: 10
-// });
-// let actionCard15 : Actions = new Actions("", "", "", {
-//   backImage: "",
-//   color: "",
-//   frontImage: "",
-//   position: 15
-// });
-// let cards : Array<CardType>= [];
-// cards.push(actionCard5)
-// cards.push(actionCard10)
-// cards.push(actionCard15)
-// for (let index = 0; index < 20; index++) {
-//   if (index%5 != 0) {
-//     let cardPassive : Passive = new Companies("", 100, [1, 4, 10], 10, {
-//       backImage: "",
-//       color: "",
-//       frontImage: "",
-//       position: index
-//     })
-//     cards.push(cardPassive);
-//   }
-// }
+let game = new Game(Cards_1.default.Cards_json, [], undefined, 2);
 //# sourceMappingURL=main.js.map
