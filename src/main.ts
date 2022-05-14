@@ -17,11 +17,14 @@ class Game {
   ias?: IA[];
   cards: CardType[] = [];
   ndBices: number;
+  center: number = 0;
+  startAmount: number = 200;
 
-  constructor(players: PlayerType[],cards: Array<any> = Cards.Cards_json, ndbices: number=2, ...partyParam: any) {
+  constructor(players: PlayerType[],cards: Array<any> = Cards.Cards_json, ndbices: number=2, startAmount: number =200, ...partyParam: any) {
     this.players = players;
     this.init(cards);
     this.ndBices = ndbices
+    this.startAmount = startAmount
   }
 
   init(cards: Array<any>): void {
@@ -33,7 +36,7 @@ class Game {
       switch (card.type) {
         case "action":
           cardObj = new Actions(card.name, 
-                              card.action, 
+                              card.actionType, 
                               card.description,
                               {
                                 backImage: card.bg,
@@ -47,9 +50,9 @@ class Game {
         case "cities":
           cardObj = new Cities(card.name, 
                             card.cost, 
-                            card.hotelPrice, 
-                            card.housePrice, 
+                            card.rent,
                             card.mortagePrice, 
+                            card.buildCost,
                             {
                               backImage: card.bg,
                               color: card.color,
@@ -59,7 +62,7 @@ class Game {
           break;
         case "prison":
           cardObj = new Prison(card.name, 
-                            card.action, 
+                            card.actionType, 
                             card.description, {
                               backImage: card.bg,
                               color: card.color,
@@ -72,7 +75,7 @@ class Game {
             cardObj = new Companies(card.name, 
                                 card.cost, 
                                 card.multiplier, // [4, 10], [25, 50, 100, 200] 
-                                card.initialCost,
+                                card.mortgage,
                                 {
                                   backImage: card.bg,
                                   color: card.color,
@@ -102,7 +105,7 @@ class Game {
     });
   }
 
-  turn(player : PlayerType){
+  turnPlayer(player : PlayerType){
 
     return new PlayerTurn(player, this.cards)
       
@@ -128,8 +131,39 @@ class Game {
       player.display.position = 10
     }*/
   }
+
+  turnActionCard(card: Actions, player: PlayerType){
+     switch (card.actionType) {
+        case 'goto':
+          player.display.position = 10
+          let card : CardType = this.cards.filter((card) => card as Prison)[0]
+          let breakInBad = card as Prison;
+          breakInBad.players.push(player)
+          this.updatePlayer([player])
+          this.updateCards([breakInBad])
+          break;
+        case 'freePark':
+          player.bankAmount += this.center;
+          this.updatePlayer([player])
+          break;
+        case 'jail':
+          break;
+        case 'start':
+          player.bankAmount += this.startAmount
+          this.updatePlayer([player])
+
+          break;
+       default:
+         break;
+     }
+  }
 }
 
 export default {
   Game,
 };
+
+
+let game = new Game([])
+
+console.log(game.cards)
