@@ -18,13 +18,15 @@ class Game {
   cards: CardType[] = [];
   ndBices: number;
   center: number = 0;
-  startAmount: number = 200;
+  startAmount: number;
+  jailTime: number;
 
-  constructor(players: PlayerType[],cards: Array<any> = Cards.Cards_json, ndbices: number=2, startAmount: number =200, ...partyParam: any) {
+  constructor(players: PlayerType[],cards: Array<any> = Cards.Cards_json, ndbices: number=2, startAmount: number =200, jailTime:number =3, ...partyParam: any) {
     this.players = players;
     this.init(cards);
     this.ndBices = ndbices
     this.startAmount = startAmount
+    this.jailTime = jailTime
   }
 
   init(cards: Array<any>): void {
@@ -107,7 +109,7 @@ class Game {
 
   turnPlayer(player : PlayerType){
 
-    return new PlayerTurn(player, this.cards)
+    return new PlayerTurn(player, this.cards, this.jailTime)
       
     // let turn = 3; // 3 double go prison
 

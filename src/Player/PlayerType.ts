@@ -5,6 +5,7 @@ interface PlayerType {
   dataBaseId: number;
   bankAmount: number;
   display: Display;
+  jailtime: number;
 }
 
 export { PlayerType };
