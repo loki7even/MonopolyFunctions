@@ -1,6 +1,8 @@
 import { Actions } from "./Cards/Actions";
 import { CardType, Passive } from "./Cards/CardsType";
+import { Cities } from "./Cards/Cities";
 import { Companies } from "./Cards/Companies";
+import { Prison } from "./Cards/Prison";
 import { PlayerType } from "./Player";
 import PlayerTurn from "./Player/PlayerTurn";
 
@@ -100,9 +102,37 @@ for (let index = 0; index < 20; index++) {
 }
 
 let playerTurn = new PlayerTurn(player, cards)
+let turn = 3;
 
 for(let info of playerTurn.turn(2)){
-  console.log(info);
-  
-}
+  if(info as PlayerType) {
+    info = info as PlayerType;
+    player = info;
+    console.log(player)
+  } else if (info as [number[], number])
+  {
+    info = info as [number[], number]
+    if(info[0][1] == info[0][0])
+      turn--;
+    console.log(info[0], info)
+  } else if (info as CardType) 
+  {
+    info = info as CardType;
+    switch (info) {
+      case info as Prison:
+        break;
+      case info as Actions:
+        break;
+      
+      case info as Cities:
+        break
+      case info as Companies:
+        break;
+      default:
+        throw new Error("Not a valid card");
+    }
+  }
 
+  if(turn == 0) 
+    player.display.position = 10
+}
