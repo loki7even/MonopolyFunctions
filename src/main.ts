@@ -50,8 +50,8 @@ class Game {
           card = new Cities(card.name, 
                             card.cost, 
                             card.hotelPrice, 
-                            card.hotelPrice, 
-                            card.hipoPrice, 
+                            card.housePrice, 
+                            card.mortagePrice, 
                             {
                               backImage: card.bg,
                               color: card.color,

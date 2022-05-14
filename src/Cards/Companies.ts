@@ -22,10 +22,6 @@ class Companies extends Passive {
     this.display = display;
     this.owner = owner;
   }
-
-  private fuck() {
-    return "fuck";
-  }
 }
 
 

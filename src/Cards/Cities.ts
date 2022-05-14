@@ -2,29 +2,24 @@ import { Display } from "../Screen";
 import { Passive } from "./CardsType";
 
 class Cities extends Passive {
-  hotelPrice: number;
-  housePrice: number;
-  hipoPrice: number;
+  rent: number[];
+  mortagePrice: number;
 
   constructor(
     name: string,
     cost: number,
-    hotelPrice: number,
-    housePrice: number,
-    hipoPrice: number,
+    rent: number[],
+    buildingCost: number,
+    mortagePrice: number,
     display: Display
   ) {
     super();
     this.name = name;
     this.cost = cost;
-    this.hotelPrice = hotelPrice;
-    this.housePrice = housePrice;
-    this.hipoPrice = hipoPrice;
-    this.display = display;
-  }
+    this.rent = rent;
+    this.mortagePrice = mortagePrice;
 
-  private fuck() {
-    return "fuck";
+    this.display = display;
   }
 }
 
