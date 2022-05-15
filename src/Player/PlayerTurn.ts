@@ -17,21 +17,20 @@ class PlayerTurn {
         this.jailtime = jailtime
     }
 
-    *turn(dices: number, prison: Prison) {
+    turn(dices: number, prison: Prison) {
+        let p = undefined;
         let lauch =  this.actions.launchdice(dices)
-        yield lauch
+        
 
         if(prison.players.indexOf(this.player)==undefined)
             this.player = this.actions.movePlayer(this.player, lauch[1])
         else if(lauch[0][0] == lauch[0][1] || this.player.jailtime <= 0){
-            prison.players.splice(prison.players.indexOf(this.player), 1)
+            p = prison.players.splice(prison.players.indexOf(this.player), 1)
+            
             this.player.jailtime = this.jailtime
-            yield prison
         } else {
             this.player.jailtime --;
         }
-
-        yield this.player
 
         let cards = this.cards.filter((card) => {
             return card.display.position == this.player.display.position  
@@ -45,7 +44,7 @@ class PlayerTurn {
             this.card = this.card as  Actions
         } 
         
-        yield this.card
+        return [lauch[0], this.player, this.card, p]
     }
 }
 

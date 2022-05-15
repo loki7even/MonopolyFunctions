@@ -136,8 +136,12 @@ class Game {
     
     this.updateCards(cardsUpdate)
     this.updatePlayer(playersUpdate)
+
+    let playerTurn = new PlayerTurn(player, this.cards, this.jailTime);
     
-    return new PlayerTurn(player, this.cards, this.jailTime)
+    let jail : Prison = this.cards.filter(card => card as Prison)[0] as Prison
+    
+    return playerTurn.turn(this.ndBices, jail)
       
     // let turn = 3; // 3 double go prison
 
@@ -188,12 +192,10 @@ class Game {
   }
 }
 
-export default {
-  Game,
-};
+export {Game};
 
 
-let game = new Game([])
+// let game = new Game([])
 
-JSON.stringify(game)
+// JSON.stringify(game)
 

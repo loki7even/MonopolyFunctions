@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Game = void 0;
 const Cards_1 = __importDefault(require("./Cards"));
 const Actions_1 = require("./Cards/Actions");
 const Cities_1 = require("./Cards/Cities");
@@ -10,13 +11,34 @@ const Companies_1 = require("./Cards/Companies");
 const Prison_1 = require("./Cards/Prison");
 const PlayerTurn_1 = __importDefault(require("./Player/PlayerTurn"));
 class Game {
-    constructor(players, cards = Cards_1.default.Cards_json, ndbices = 2, ...partyParam) {
+    constructor(players, cards = Cards_1.default.Cards_json, bankAmount = 1200, ndbices = 2, startAmount = 200, jailTime = 3, ...partyParam) {
+        this.players = [];
         this.cards = [];
-        this.players = players;
-        this.init(cards);
+        this.center = 0;
+        this.intiPlayers(players, bankAmount);
+        this.initCards(cards);
         this.ndBices = ndbices;
+        this.startAmount = startAmount;
+        this.jailTime = jailTime;
     }
-    init(cards) {
+    intiPlayers(players, bankAmount) {
+        players.forEach((player) => {
+            let playerObj = {
+                name: player.name,
+                dataBaseId: 0,
+                bankAmount: bankAmount,
+                display: {
+                    backImage: player.bg,
+                    color: player.color,
+                    frontImage: player.fg,
+                    position: 0
+                },
+                jailtime: 3
+            };
+            this.players.push(playerObj);
+        });
+    }
+    initCards(cards) {
         cards.forEach(card => {
             let cardObj = null;
             switch (card.type) {
@@ -73,8 +95,12 @@ class Game {
             return player2 ? player2 : player;
         });
     }
-    turn(player) {
-        return new PlayerTurn_1.default(player, this.cards);
+    turnPlayer(player, cardsUpdate, playersUpdate) {
+        this.updateCards(cardsUpdate);
+        this.updatePlayer(playersUpdate);
+        let playerTurn = new PlayerTurn_1.default(player, this.cards, this.jailTime);
+        let jail = this.cards.filter(card => card)[0];
+        return playerTurn.turn(this.ndBices, jail);
         // let turn = 3; // 3 double go prison
         /* for(let info of playerTurn.turn(this.ndBices)){
           if(info as PlayerType) {
@@ -96,10 +122,32 @@ class Game {
           player.display.position = 10
         }*/
     }
+    turnActionCard(card, player) {
+        switch (card.actionType) {
+            case 'goto':
+                player.display.position = 10;
+                let card = this.cards.filter((card) => card)[0];
+                let breakInBad = card;
+                breakInBad.players.push(player);
+                this.updatePlayer([player]);
+                this.updateCards([breakInBad]);
+                break;
+            case 'freePark':
+                player.bankAmount += this.center;
+                this.updatePlayer([player]);
+                break;
+            case 'jail':
+                break;
+            case 'start':
+                player.bankAmount += this.startAmount;
+                this.updatePlayer([player]);
+                break;
+            default:
+                break;
+        }
+    }
 }
-exports.default = {
-    Game,
-};
-let game = new Game([]);
-console.log(game.cards);
+exports.Game = Game;
+// let game = new Game([])
+// JSON.stringify(game)
 //# sourceMappingURL=main.js.map
