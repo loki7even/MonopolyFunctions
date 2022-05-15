@@ -13,23 +13,48 @@ interface IA {
 }
 
 class Game {
-  players?: PlayerType[];
-  ias?: IA[];
+  players: PlayerType[] = [];
   cards: CardType[] = [];
+  
+  ias?: IA[];
   ndBices: number;
   center: number = 0;
   startAmount: number;
   jailTime: number;
 
-  constructor(players: PlayerType[],cards: Array<any> = Cards.Cards_json, ndbices: number=2, startAmount: number =200, jailTime:number =3, ...partyParam: any) {
-    this.players = players;
-    this.init(cards);
+  constructor(players: Array<any>,
+              cards: Array<any> = Cards.Cards_json,
+              bankAmount=1200, 
+              ndbices: number=2, 
+              startAmount: number =200, 
+              jailTime:number =3, ...partyParam: any) {
+    this.intiPlayers(players, bankAmount);
+    this.initCards(cards);
     this.ndBices = ndbices
     this.startAmount = startAmount
     this.jailTime = jailTime
   }
 
-  init(cards: Array<any>): void {
+  intiPlayers(players: Array<any>, bankAmount: number) {
+    players.forEach((player) => {
+      let playerObj : PlayerType = {
+        name: player.name,
+        dataBaseId: 0,
+        bankAmount: bankAmount,
+        display: {
+          backImage: player.bg,
+          color: player.color,
+          frontImage: player.fg,
+          position: 0
+        },
+        jailtime: 3
+      }
+      this.players.push(playerObj)
+    })
+
+  }
+
+  initCards(cards: Array<any>): void {
     
     cards.forEach(card => {
 
@@ -107,8 +132,11 @@ class Game {
     });
   }
 
-  turnPlayer(player : PlayerType){
-
+  turnPlayer(player : PlayerType, cardsUpdate?: CardType[], playersUpdate?: PlayerType[]){
+    
+    this.updateCards(cardsUpdate)
+    this.updatePlayer(playersUpdate)
+    
     return new PlayerTurn(player, this.cards, this.jailTime)
       
     // let turn = 3; // 3 double go prison
@@ -153,7 +181,6 @@ class Game {
         case 'start':
           player.bankAmount += this.startAmount
           this.updatePlayer([player])
-
           break;
        default:
          break;
@@ -168,4 +195,5 @@ export default {
 
 let game = new Game([])
 
-console.log(game.cards)
+JSON.stringify(game)
+
