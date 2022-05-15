@@ -14,6 +14,7 @@ abstract class Passive implements CardType {
   mortagePrice!: number;
   description!: string;
   display!: Display;
+  propreties: number = 0;
   private show() {
     return "fuck";
   }
