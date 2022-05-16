@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Game = void 0;
+exports.transform = exports.Game = void 0;
 const Cards_1 = __importDefault(require("./Cards"));
 const Actions_1 = require("./Cards/Actions");
 const Cities_1 = require("./Cards/Cities");
@@ -148,6 +148,17 @@ class Game {
     }
 }
 exports.Game = Game;
+class Json {
+    constructor(json) {
+        Object.assign(this, JSON.parse(json));
+    }
+}
+function transform(json, game) {
+    let jsonClass = new Json(json);
+    Object.setPrototypeOf(jsonClass, game);
+    return game;
+}
+exports.transform = transform;
 // let game = new Game([])
 // JSON.stringify(game)
 //# sourceMappingURL=main.js.map

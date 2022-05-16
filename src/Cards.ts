@@ -404,7 +404,7 @@ let Cards_json : Array<any> = [
       "color": "",
       "fg": "",
       "pos": 12
-    },,
+    },
     {
       "type": "companies",
       "name": "Compagnies de distribution d'eau",

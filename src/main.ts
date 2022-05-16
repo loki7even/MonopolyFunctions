@@ -192,7 +192,20 @@ class Game {
   }
 }
 
-export {Game};
+class Json {
+  constructor(json :string ){
+
+    Object.assign(this, JSON.parse(json))
+  }
+}
+
+function transform(json : string, game: Game) {
+  let jsonClass = new Json(json)
+  Object.setPrototypeOf(jsonClass, game)
+  return game
+}
+
+export {Game, transform};
 
 
 // let game = new Game([])
