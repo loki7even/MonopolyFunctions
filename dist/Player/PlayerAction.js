@@ -17,8 +17,11 @@ class PlayerActions {
         ;
         return [dice, sum];
     }
-    movePlayer(player, move) {
+    movePlayer(player, move, lenBoard) {
         player.position += move;
+        if (player.position > lenBoard) {
+            player.position -= lenBoard;
+        }
         return player;
     }
     pay(player, total) {

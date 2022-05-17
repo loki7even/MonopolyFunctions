@@ -7,16 +7,12 @@ import { Prison } from "./Cards/Prison";
 import { PlayerType } from "./Player";
 import PlayerTurn from "./Player/PlayerTurn";
 
-interface IA {
-  name: string;
-  difficulty: number;
-}
+
 
 export class Game {
   players: PlayerType[] = [];
   cards: CardType[] = [];
   
-  ias?: IA[];
   ndBices: number;
   center: number = 0;
   startAmount: number;
@@ -39,10 +35,10 @@ export class Game {
     players.forEach((player) => {
       let playerObj : PlayerType = {
         name: player.name,
-        dataBaseId: 0,
         bankAmount: bankAmount,
         position: 0,
-        jailtime: 3
+        jailtime: 3,
+        ia: player.ia
       }
       this.players.push(playerObj)
     })
@@ -84,7 +80,8 @@ export class Game {
                                 card.multiplier, // [4, 10], [25, 50, 100, 200] 
                                 card.mortgage,
                                 card.pos)
-            break;     
+            break;
+        
         default:
           break;
       }

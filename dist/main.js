@@ -25,10 +25,10 @@ class Game {
         players.forEach((player) => {
             let playerObj = {
                 name: player.name,
-                dataBaseId: 0,
                 bankAmount: bankAmount,
                 position: 0,
-                jailtime: 3
+                jailtime: 3,
+                ia: player.ia
             };
             this.players.push(playerObj);
         });
@@ -70,12 +70,12 @@ class Game {
             return player2 ? player2 : player;
         });
     }
-    turnPlayer(player, cardsUpdate, playersUpdate) {
+    turnPlayer(player, cardsUpdate, playersUpdate, index = 0) {
         this.updateCards(cardsUpdate);
         this.updatePlayer(playersUpdate);
         let playerTurn = new PlayerTurn_1.default(player, this.cards, this.jailTime);
         let jail = this.cards.filter(card => card)[0];
-        return playerTurn.turn(this.ndBices, jail);
+        return playerTurn.turn(this.ndBices, jail), index;
         // let turn = 3; // 3 double go prison
         /* for(let info of playerTurn.turn(this.ndBices)){
           if(info as PlayerType) {

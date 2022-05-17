@@ -1,2 +1,2 @@
-export * as GmFunctions from "./main";
-export * as GmDefault from "./Cards";
+export * from "./Cards";
+export * from "./main";

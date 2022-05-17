@@ -21,8 +21,12 @@ class PlayerActions
     return [dice, sum];
   }
   
-  movePlayer(player: PlayerType, move: number) {
+  movePlayer(player: PlayerType, move: number, lenBoard: number) {
+    
     player.position += move;
+    if(player.position > lenBoard) {
+      player.position -= lenBoard
+    }
     return player;
   }
   

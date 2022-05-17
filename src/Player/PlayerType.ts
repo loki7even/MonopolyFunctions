@@ -1,9 +1,9 @@
 interface PlayerType {
   name: string;
-  dataBaseId: number;
   bankAmount: number;
   position: number;
   jailtime: number;
+  ia: string | null;
 }
 
 export { PlayerType };

@@ -1,4 +1,4 @@
-let Cards_json : Array<any> = [
+export let Cards_json : Array<any> = [
   {
     "type": "cities",
     "name": "Vire",
@@ -264,26 +264,19 @@ let Cards_json : Array<any> = [
     "pos": 39
   },
   {
-    "type": "actions",
-    "name": "caisse de communauté",
-    "actionType": "cummonauty",
-    "description": "Get a commo",
-  },
-  {
-      "type": "actions",
+      "type": "action",
       "name": "caisse de communauté",
-      "actionType": "cummunity",
-  
-      "descriuption": "et a cmmolnauty",
+      "actionType": "communauty",  
+      "description": "et a communauté",
       "bg": "",
       "color": "",
       "fg": "",
       "pos": 2
     },
     {
-      "type": "actions",
+      "type": "action",
       "name": "caisse de communauté",
-      "actionType": "cummo8nauty",
+      "actionType": "communauty",
       "description": "et a cmmonauty",
       "bg": "",
       "color": "",
@@ -291,9 +284,9 @@ let Cards_json : Array<any> = [
       "pos": 17
     },
     {
-      "type": "actions",
+      "type": "action",
       "name": "caisse de communauté",
-      "actionType": "cummo8nauty",
+      "actionType": "communauty",
       "description": "et a cmmonauty",
       "bg": "",
       "color": "",
@@ -301,7 +294,7 @@ let Cards_json : Array<any> = [
       "pos": 33
     },
     {
-      "type": "actions",
+      "type": "action",
       "name": "luck",
       "actionType": "luck",
       "description": "luck",
@@ -311,7 +304,7 @@ let Cards_json : Array<any> = [
       "pos": 7
     },
     {
-      "type": "actions",
+      "type": "action",
       "name": "luck",
       "actionType": "luck",
       "description": "luck",
@@ -321,7 +314,7 @@ let Cards_json : Array<any> = [
       "pos": 22
     },
     {
-      "type": "actions",
+      "type": "action",
       "name": "luck",
       "actionType": "luck",
       "description": "luck",
@@ -331,7 +324,7 @@ let Cards_json : Array<any> = [
       "pos": 36
     },
     {
-      "type": "actions",
+      "type": "action",
       "name": "taxe",
       "actionType": "taxe",
       "description": "Taxe of luxury",
@@ -341,7 +334,7 @@ let Cards_json : Array<any> = [
       "pos": 38
     },
     {
-      "type": "actions",
+      "type": "action",
       "name": "taxe",
       "actionType": "taxe",
       "description": "income tax",
