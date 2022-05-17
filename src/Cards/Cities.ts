@@ -1,4 +1,3 @@
-import { Display } from "../Screen";
 import { Passive } from "./CardsType";
 
 class Cities extends Passive {
@@ -11,7 +10,7 @@ class Cities extends Passive {
     rent: number[],
     buildingCost: number,
     mortagePrice: number,
-    display: Display
+    position: number
   ) {
     super();
     this.name = name;
@@ -20,7 +19,7 @@ class Cities extends Passive {
     this.mortagePrice = mortagePrice;
     this.buildingCost= buildingCost;
   
-    this.display = display;
+    this.position = position;
   }
 }
 

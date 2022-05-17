@@ -33,7 +33,7 @@ class PlayerTurn {
         }
 
         let cards = this.cards.filter((card) => {
-            return card.display.position == this.player.display.position  
+            return card.position == this.player.position  
         })
         
         if(cards.length!=1) throw new Error("To many cards");

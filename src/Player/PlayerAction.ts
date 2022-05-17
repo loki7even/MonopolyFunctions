@@ -22,7 +22,7 @@ class PlayerActions
   }
   
   movePlayer(player: PlayerType, move: number) {
-    player.display.position += move;
+    player.position += move;
     return player;
   }
   

@@ -1,5 +1,4 @@
 import { PlayerType } from "../Player";
-import { Display } from "../Screen";
 import { Passive } from "./CardsType";
 
 class Companies extends Passive {
@@ -10,7 +9,7 @@ class Companies extends Passive {
     cost: number,
     multiplier: number[],
     mortage: number,
-    display: Display,
+    position: number,
     owner?: PlayerType
   ) {
     super();
@@ -18,7 +17,7 @@ class Companies extends Passive {
     this.cost = cost;
     this.multiplier = multiplier;
     this.mortagePrice = mortage
-    this.display = display;
+    this.position = position;
     this.owner = owner;
   }
 }

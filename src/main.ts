@@ -41,12 +41,7 @@ export class Game {
         name: player.name,
         dataBaseId: 0,
         bankAmount: bankAmount,
-        display: {
-          backImage: player.bg,
-          color: player.color,
-          frontImage: player.fg,
-          position: 0
-        },
+        position: 0,
         jailtime: 3
       }
       this.players.push(playerObj)
@@ -65,13 +60,7 @@ export class Game {
           cardObj = new Actions(card.name, 
                               card.actionType, 
                               card.description,
-                              {
-                                backImage: card.bg,
-                                color: card.color,
-                                frontImage: card.fg,
-                                position: card.pos
-                              });
-          
+                              card.pos)
           break;
 
         case "cities":
@@ -80,22 +69,13 @@ export class Game {
                             card.rent,
                             card.mortagePrice, 
                             card.buildCost,
-                            {
-                              backImage: card.bg,
-                              color: card.color,
-                              frontImage: card.fg,
-                              position: card.pos
-                            })
+                            card.pos)
           break;
         case "prison":
           cardObj = new Prison(card.name, 
                             card.actionType, 
-                            card.description, {
-                              backImage: card.bg,
-                              color: card.color,
-                              frontImage: card.fg,
-                              position: card.pos
-                            })
+                            card.description, 
+                            card.pos)
           break;
         
         case "companies":
@@ -103,12 +83,7 @@ export class Game {
                                 card.cost, 
                                 card.multiplier, // [4, 10], [25, 50, 100, 200] 
                                 card.mortgage,
-                                {
-                                  backImage: card.bg,
-                                  color: card.color,
-                                  frontImage: card.fg,
-                                  position: card.pos
-                                })
+                                card.pos)
             break;     
         default:
           break;
@@ -169,7 +144,7 @@ export class Game {
   turnActionCard(card: Actions, player: PlayerType){
      switch (card.actionType) {
         case 'goto':
-          player.display.position = 10
+          player.position = 10
           let card : CardType = this.cards.filter((card) => card as Prison)[0]
           let breakInBad = card as Prison;
           breakInBad.players.push(player)

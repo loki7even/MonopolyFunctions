@@ -1,10 +1,8 @@
 import { PlayerType } from "../Player";
-import { Display } from "../Screen";
-
 interface CardType {
   name: string;
   description: string;
-  display: Display;
+  position: number;
 }
 
 abstract class Passive implements CardType {
@@ -13,7 +11,7 @@ abstract class Passive implements CardType {
   cost!: number;
   mortagePrice!: number;
   description!: string;
-  display!: Display;
+  position!: number;
   propreties: number = 0;
   private show() {
     return "fuck";

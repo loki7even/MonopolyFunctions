@@ -1,5 +1,4 @@
 import { PlayerType } from "../Player";
-import { Display } from "../Screen";
 import { Actions } from "./Actions";
 
 class Prison extends Actions {
@@ -9,14 +8,14 @@ class Prison extends Actions {
     name: string,
     actionType: string,
     description: string,
-    display: Display,
+    position: number,
     players: PlayerType[] = []
   ) {
-    super(name, actionType, description, display);
+    super(name, actionType, description, position);
     this.name = name;
     this.actionType = actionType;
     this.description = description;
-    this.display = display;
+    this.position = position;
     this.players = [];
   }
 }
