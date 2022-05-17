@@ -159,6 +159,7 @@ function transform(json, game) {
     return game;
 }
 exports.transform = transform;
+// export { Game, transform };
 // let game = new Game([])
 // JSON.stringify(game)
 //# sourceMappingURL=main.js.map

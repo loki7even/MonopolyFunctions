@@ -12,7 +12,7 @@ interface IA {
   difficulty: number;
 }
 
-class Game {
+export class Game {
   players: PlayerType[] = [];
   cards: CardType[] = [];
   
@@ -199,13 +199,13 @@ class Json {
   }
 }
 
-function transform(json : string, game: Game) {
+export function transform(json : string, game: Game) {
   let jsonClass = new Json(json)
   Object.setPrototypeOf(jsonClass, game)
   return game
 }
 
-export {Game, transform};
+// export { Game, transform };
 
 
 // let game = new Game([])
