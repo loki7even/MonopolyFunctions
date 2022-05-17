@@ -7,7 +7,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "prepare" : "npm run build",
+    "lint": "eslint",
+    "prepare": "npm run build",
     "version": "npm run format && git add -A src",
     "postversion": "git push && git push --tags"
   },
@@ -15,11 +16,22 @@
     "type": "git",
     "url": "git+https://github.com/loki7even/MonopolyFunctions.git"
   },
-  "keywords": ["Laisse le vide"],
+  "keywords": [],
   "author": "Lounes Behloul, Soufian Oualla",
   "license": "ISC",
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.24.0",
+    "@typescript-eslint/parser": "^5.24.0",
+    "eslint": ">=5.16.0",
+    "eslint-config-google": "^0.14.0",
     "typescript": "^4.6.4"
   },
-  "exclude":["node_modules", "dist/"]
+  "exclude": [
+    "node_modules",
+    "dist/"
+  ],
+  "dependencies": {
+    "prettier": "^2.6.2",
+    "tslint-config-prettier": "^1.18.0"
+  }
 }
