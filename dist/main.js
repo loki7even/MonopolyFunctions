@@ -20,6 +20,7 @@ class Game {
         this.ndBices = ndbices;
         this.startAmount = startAmount;
         this.jailTime = jailTime;
+        this.jail = cards.filter(card => card)[0];
     }
     intiPlayers(players, bankAmount) {
         players.forEach((player) => {
@@ -70,12 +71,11 @@ class Game {
             return player2 ? player2 : player;
         });
     }
-    turnPlayer(player, cardsUpdate, playersUpdate, index = 0) {
+    turnPlayer(player, cardsUpdate, playersUpdate) {
         this.updateCards(cardsUpdate);
         this.updatePlayer(playersUpdate);
-        let playerTurn = new PlayerTurn_1.default(player, this.cards, this.jailTime);
-        let jail = this.cards.filter(card => card)[0];
-        return playerTurn.turn(this.ndBices, jail), index;
+        let playerTurn = new PlayerTurn_1.default(player, this.cards, this.jailTime, this.startAmount);
+        return playerTurn.turn(this.ndBices, this.jail);
         // let turn = 3; // 3 double go prison
         /* for(let info of playerTurn.turn(this.ndBices)){
           if(info as PlayerType) {

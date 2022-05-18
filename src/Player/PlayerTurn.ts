@@ -10,11 +10,13 @@ class PlayerTurn {
     cards: CardType[];
     card: CardType | undefined;
     jailtime: number;
+    startAmount: number;
 
-    constructor(player: PlayerType, cards : Array<CardType>, jailtime:number) {
+    constructor(player: PlayerType, cards : Array<CardType>, jailtime:number, startAmount:number) {
         this.player = player;
         this.cards = cards;
         this.jailtime = jailtime
+        this.startAmount = startAmount
     }
 
     turn(dices: number, prison: Prison) {
@@ -23,7 +25,7 @@ class PlayerTurn {
         
 
         // if(prison.players.indexOf(this.player)==undefined)
-            this.player = this.actions.movePlayer(this.player, lauch[1], this.cards.length)
+            this.player = this.actions.movePlayer(this.player, lauch[1], this.cards.length-1, this.startAmount)
         // else if(lauch[0][0] == lauch[0][1] || this.player.jailtime <= 0){
         //     p = prison.players.splice(prison.players.indexOf(this.player), 1)
             

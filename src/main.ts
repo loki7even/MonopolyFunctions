@@ -17,6 +17,7 @@ export class Game {
   center: number = 0;
   startAmount: number;
   jailTime: number;
+  jail : Prison;
 
   constructor(players: Array<any>,
               cards: Array<any> = Cards.Cards_json,
@@ -29,6 +30,7 @@ export class Game {
     this.ndBices = ndbices
     this.startAmount = startAmount
     this.jailTime = jailTime
+    this.jail = cards.filter(card => card as Prison)[0] as Prison
   }
 
   intiPlayers(players: Array<any>, bankAmount: number) {
@@ -109,11 +111,9 @@ export class Game {
     this.updateCards(cardsUpdate)
     this.updatePlayer(playersUpdate)
 
-    let playerTurn = new PlayerTurn(player, this.cards, this.jailTime);
+    let playerTurn = new PlayerTurn(player, this.cards, this.jailTime, this.startAmount);
     
-    let jail : Prison = this.cards.filter(card => card as Prison)[0] as Prison
-    
-    return playerTurn.turn(this.ndBices, jail)
+    return playerTurn.turn(this.ndBices, this.jail)
       
     // let turn = 3; // 3 double go prison
 

@@ -1,5 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const Cities_1 = require("../Cards/Cities");
+const Companies_1 = require("../Cards/Companies");
 class PlayerActions {
     randomIntFromInterval(min, max) {
         // min and max included
@@ -17,10 +19,11 @@ class PlayerActions {
         ;
         return [dice, sum];
     }
-    movePlayer(player, move, lenBoard) {
+    movePlayer(player, move, lenBoard, startAmount) {
         player.position += move;
         if (player.position > lenBoard) {
             player.position -= lenBoard;
+            player.bankAmount += startAmount;
         }
         return player;
     }
@@ -35,6 +38,19 @@ class PlayerActions {
     }
     bid(players, totalBid) {
         return players;
+    }
+    getPropreties(player, cards) {
+        cards.filter(card => {
+            if (card instanceof Cities_1.Cities) {
+                let card2 = card;
+                return card2.owner == player;
+            }
+            else if (card instanceof Companies_1.Companies) {
+                let card2 = card;
+                return card2.owner == player;
+            }
+            return false;
+        });
     }
 }
 exports.default = PlayerActions;

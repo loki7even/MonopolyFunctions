@@ -1,4 +1,7 @@
 /* eslint-disable */
+import { CardType } from "../Cards/CardsType";
+import { Cities } from "../Cards/Cities";
+import { Companies } from "../Cards/Companies";
 import { PlayerType } from "./PlayerType";
 
 class PlayerActions
@@ -21,11 +24,12 @@ class PlayerActions
     return [dice, sum];
   }
   
-  movePlayer(player: PlayerType, move: number, lenBoard: number) {
+  movePlayer(player: PlayerType, move: number, lenBoard: number, startAmount: number) {
     
     player.position += move;
     if(player.position > lenBoard) {
       player.position -= lenBoard
+      player.bankAmount += startAmount
     }
     return player;
   }
@@ -45,6 +49,20 @@ class PlayerActions
   bid(players: [PlayerType], totalBid: number): [PlayerType] {
     
     return players;
+  }
+
+  getPropreties(player: PlayerType, cards : [CardType]) {
+    cards.filter(card => {
+      if(card instanceof Cities) {
+        let card2 = card as Cities
+        return card2.owner == player
+      } else if(card instanceof Companies) 
+      {
+        let card2 = card as Companies
+        return card2.owner == player
+      }
+      return false
+    })
   }
 }
 
