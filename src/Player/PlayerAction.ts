@@ -2,10 +2,59 @@
 import { CardType } from "../Cards/CardsType";
 import { Cities } from "../Cards/Cities";
 import { Companies } from "../Cards/Companies";
+import { Actions } from "../Cards/Actions";
+import { Prison } from "../Cards/Prison";
 import { PlayerType } from "./PlayerType";
 
-class PlayerActions
-{
+class PlayerActions {
+  player: PlayerType;
+  cards: CardType[];
+  card: CardType | undefined;
+  jailtime: number;
+  startAmount: number;
+
+  constructor(player: PlayerType, cards : Array<CardType>, jailtime:number, startAmount:number) {
+    this.player = player;
+    this.cards = cards;
+    this.jailtime = jailtime
+    this.startAmount = startAmount
+  }
+
+  turn(dices: number, prison: Prison) {
+    let p = undefined;
+    let lauch =  this.launchdice(dices)
+    
+
+    // if(prison.players.indexOf(this.player)==undefined)
+      this.player = this.movePlayer(this.player, lauch[1], this.cards.length-1, this.startAmount)
+    // else if(lauch[0][0] == lauch[0][1] || this.player.jailtime <= 0){
+    //     p = prison.players.splice(prison.players.indexOf(this.player), 1)
+        
+    //     this.player.jailtime = this.jailtime
+    // } else {
+    //     this.player.jailtime --;
+    // }
+
+    let cards = this.cards.filter((card) => {
+        return card.position == this.player.position  
+    })
+    
+    if(cards.length!=1){
+        
+        console.log(this.player.position)
+        console.log(cards)
+        throw new Error("Too many cards");
+    } 
+    
+    this.card = cards[0]
+
+    if(this.card as Actions) {
+        this.card = this.card as Actions
+    } 
+    
+    return [lauch[0], this.player, this.card, p]
+}
+
   randomIntFromInterval(min: number, max: number) {
     // min and max included
     return Math.floor(Math.random() * (max - min + 1) + min);
@@ -34,8 +83,8 @@ class PlayerActions
     return player;
   }
   
-  pay(player: PlayerType, total: number): PlayerType {
-    if (player.bankAmount - total > 0) player.bankAmount - total;
+  buy(player: PlayerType, total: number): PlayerType {
+    if (player.bankAmount - total > 0) player.bankAmount -= total;
   
     return player;
   }
@@ -65,9 +114,5 @@ class PlayerActions
     })
   }
 }
-
-
-
-
 
 export default PlayerActions; 

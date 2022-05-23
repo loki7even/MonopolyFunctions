@@ -13,9 +13,6 @@ abstract class Passive implements CardType {
   description!: string;
   position!: number;
   propreties: number = 0;
-  private show() {
-    return "fuck";
-  }
 }
 
 export { CardType, Passive };

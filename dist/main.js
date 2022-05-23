@@ -9,13 +9,14 @@ const Actions_1 = require("./Cards/Actions");
 const Cities_1 = require("./Cards/Cities");
 const Companies_1 = require("./Cards/Companies");
 const Prison_1 = require("./Cards/Prison");
-const PlayerTurn_1 = __importDefault(require("./Player/PlayerTurn"));
+const PlayerAction_1 = __importDefault(require("./Player/PlayerAction"));
 class Game {
-    constructor(players, cards = Cards_1.default.Cards_json, bankAmount = 1200, ndbices = 2, startAmount = 200, jailTime = 3, ...partyParam) {
+    constructor(players, cards = Cards_1.default.Cards_json, bankAmount = 1500, ndbices = 2, startAmount = 200, jailTime = 3, ...partyParam) {
         this.players = [];
         this.cards = [];
+        this.playerIndex = 0;
         this.center = 0;
-        this.intiPlayers(players, bankAmount);
+        this.intiPlayers((players ? JSON.parse(players) : players), bankAmount);
         this.initCards(cards);
         this.ndBices = ndbices;
         this.startAmount = startAmount;
@@ -25,7 +26,7 @@ class Game {
     intiPlayers(players, bankAmount) {
         players.forEach((player) => {
             let playerObj = {
-                name: player.name,
+                name: (player ? JSON.parse(player) : player).name,
                 bankAmount: bankAmount,
                 position: 0,
                 jailtime: 3,
@@ -58,6 +59,13 @@ class Game {
                 this.cards.push(cardObj);
         });
     }
+    getPlayer() {
+        return this.players[this.playerIndex];
+    }
+    getPlayerName() {
+        var _a;
+        return (_a = this.getPlayer()) === null || _a === void 0 ? void 0 : _a.name;
+    }
     updateCards(cardsUpdate) {
         this.cards.map((card) => {
             const card2 = cardsUpdate === null || cardsUpdate === void 0 ? void 0 : cardsUpdate.find((i2) => (i2.name = card.name));
@@ -74,10 +82,10 @@ class Game {
     turnPlayer(player, cardsUpdate, playersUpdate) {
         this.updateCards(cardsUpdate);
         this.updatePlayer(playersUpdate);
-        let playerTurn = new PlayerTurn_1.default(player, this.cards, this.jailTime, this.startAmount);
-        return playerTurn.turn(this.ndBices, this.jail);
+        let playerActions = new PlayerAction_1.default(player, this.cards, this.jailTime, this.startAmount);
+        return playerActions.turn(this.ndBices, this.jail);
         // let turn = 3; // 3 double go prison
-        /* for(let info of playerTurn.turn(this.ndBices)){
+        /* for(let info of playerActions.turn(this.ndBices)){
           if(info as PlayerType) {
             info = info as PlayerType;
             player = info;
@@ -97,7 +105,7 @@ class Game {
           player.display.position = 10
         }*/
     }
-    turnActionCard(card, player) {
+    turnActionsCard(card, player) {
         switch (card.actionType) {
             case 'goto':
                 player.position = 10;
@@ -120,6 +128,37 @@ class Game {
             default:
                 break;
         }
+    }
+    turn() {
+        // if(!this.lock) throw new Error("Not  yet");
+        /* if(this.ws)
+        {
+          this.cards = transform(ws.get()).players
+          this.players = transform(ws.get()).cards
+        }*/
+        let actions = [];
+        let turnData = this.turnPlayer(this.players[this.playerIndex]);
+        let playerActions = new PlayerAction_1.default(this.players[this.playerIndex], this.cards, this.jailTime, this.startAmount);
+        if (turnData[2] instanceof Actions_1.Actions) {
+            actions = [];
+        }
+        else {
+            actions = ["buy", "sell", "build"];
+        }
+        if (turnData[2] instanceof Cities_1.Cities) {
+            playerActions.buy(this.players[this.playerIndex], turnData[2].cost);
+        }
+        let dices = turnData[0];
+        if (dices[1] != dices[0]) {
+            this.playerIndex += 1;
+            if (this.players.length - 1 < this.playerIndex)
+                this.playerIndex = 0;
+        }
+        // else {
+        //   this.jail.players.push(this.players[this.playerIndex])
+        // }
+        // this.lock = true
+        return turnData;
     }
 }
 exports.Game = Game;

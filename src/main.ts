@@ -5,27 +5,27 @@ import { Cities } from "./Cards/Cities";
 import { Companies } from "./Cards/Companies";
 import { Prison } from "./Cards/Prison";
 import { PlayerType } from "./Player";
-import PlayerTurn from "./Player/PlayerTurn";
-
-
+import PlayerActions from "./Player/PlayerAction";
 
 export class Game {
   players: PlayerType[] = [];
   cards: CardType[] = [];
   
+  playerIndex: number = 0;
   ndBices: number;
   center: number = 0;
   startAmount: number;
   jailTime: number;
   jail : Prison;
 
-  constructor(players: Array<any>,
+  constructor(players: Array<any> | string,
               cards: Array<any> = Cards.Cards_json,
-              bankAmount=1200, 
+              bankAmount=1500, 
               ndbices: number=2, 
               startAmount: number =200, 
               jailTime:number =3, ...partyParam: any) {
-    this.intiPlayers(players, bankAmount);
+              
+    this.intiPlayers((players as string ? JSON.parse(players as string): players ), bankAmount);
     this.initCards(cards);
     this.ndBices = ndbices
     this.startAmount = startAmount
@@ -34,9 +34,11 @@ export class Game {
   }
 
   intiPlayers(players: Array<any>, bankAmount: number) {
+    
     players.forEach((player) => {
+      
       let playerObj : PlayerType = {
-        name: player.name,
+        name: (player as string ? JSON.parse(player): player ).name,
         bankAmount: bankAmount,
         position: 0,
         jailtime: 3,
@@ -91,6 +93,12 @@ export class Game {
     })
   }
   
+  getPlayer() {
+    return this.players[this.playerIndex];
+  }
+  getPlayerName() {
+    return this.getPlayer()?.name;
+  }
 
   updateCards(cardsUpdate?: CardType[]): void {
     this.cards.map((card) => {
@@ -111,13 +119,13 @@ export class Game {
     this.updateCards(cardsUpdate)
     this.updatePlayer(playersUpdate)
 
-    let playerTurn = new PlayerTurn(player, this.cards, this.jailTime, this.startAmount);
+    let playerActions = new PlayerActions(player, this.cards, this.jailTime, this.startAmount);
     
-    return playerTurn.turn(this.ndBices, this.jail)
+    return playerActions.turn(this.ndBices, this.jail)
       
     // let turn = 3; // 3 double go prison
 
-    /* for(let info of playerTurn.turn(this.ndBices)){ 
+    /* for(let info of playerActions.turn(this.ndBices)){ 
       if(info as PlayerType) {
         info = info as PlayerType;
         player = info;
@@ -138,7 +146,7 @@ export class Game {
     }*/
   }
 
-  turnActionCard(card: Actions, player: PlayerType){
+  turnActionsCard(card: Actions, player: PlayerType){
      switch (card.actionType) {
         case 'goto':
           player.position = 10
@@ -161,6 +169,42 @@ export class Game {
        default:
          break;
      }
+  }
+
+  turn() {
+    // if(!this.lock) throw new Error("Not  yet");
+    /* if(this.ws) 
+    {
+      this.cards = transform(ws.get()).players 
+      this.players = transform(ws.get()).cards
+    }*/
+    let actions = []
+    let turnData = this.turnPlayer(this.players[this.playerIndex]);
+    let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.jailTime, this.startAmount);
+    
+    if (turnData[2] instanceof Actions) {
+      actions = [];
+    } else {
+      actions = ["buy", "sell", "build"];
+    }
+
+    if(turnData[2] instanceof Cities) {
+      playerActions.buy(this.players[this.playerIndex], turnData[2].cost)
+    }
+    
+    let dices = turnData[0] as number[];
+
+    if (dices[1] != dices[0]) {
+      this.playerIndex += 1;
+      if (this.players.length - 1 < this.playerIndex)
+        this.playerIndex = 0;
+    } 
+    // else {
+    //   this.jail.players.push(this.players[this.playerIndex])
+    // }
+
+    // this.lock = true
+    return turnData;
   }
 }
 

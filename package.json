@@ -1,6 +1,6 @@
 {
   "name": "monopoly_functions",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Projet monopoly",
   "main": "dist/index.js",
   "types": "src/index.d.ts",

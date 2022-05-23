@@ -5,9 +5,6 @@ class Passive {
     constructor() {
         this.propreties = 0;
     }
-    show() {
-        return "fuck";
-    }
 }
 exports.Passive = Passive;
 //# sourceMappingURL=CardsType.js.map
