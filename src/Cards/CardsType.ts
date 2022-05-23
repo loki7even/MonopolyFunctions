@@ -2,7 +2,7 @@ import { PlayerType } from "../Player";
 interface CardType {
   name: string;
   description: string;
-  position: number;
+  position: number;  
 }
 
 abstract class Passive implements CardType {

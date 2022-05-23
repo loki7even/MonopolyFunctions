@@ -121,6 +121,14 @@ export class Game {
 
     let playerActions = new PlayerActions(player, this.cards, this.jailTime, this.startAmount);
     
+    /**
+     * turn contains
+     * dicies
+     * player
+     * card where player is
+     */
+
+    
     return playerActions.turn(this.ndBices, this.jail)
       
     // let turn = 3; // 3 double go prison
