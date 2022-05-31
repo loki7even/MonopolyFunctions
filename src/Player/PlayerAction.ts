@@ -20,40 +20,49 @@ class PlayerActions {
     this.startAmount = startAmount
   }
 
-  turn(dices: number, prison: Prison) {
-    let p = undefined;
+  turn(dices: number) {
     let lauch =  this.launchdice(dices)
-    
 
-    // if(prison.players.indexOf(this.player)==undefined)
-      this.player = this.movePlayer(this.player, lauch[1], this.cards.length-1, this.startAmount)
-    // else if(lauch[0][0] == lauch[0][1] || this.player.jailtime <= 0){
-    //     p = prison.players.splice(prison.players.indexOf(this.player), 1)
-        
-    //     this.player.jailtime = this.jailtime
-    // } else {
-    //     this.player.jailtime --;
-    // }
+    this.player = this.movePlayer(this.player, lauch[1], this.cards.length-1, this.startAmount)
 
     let cards = this.cards.filter((card) => {
         return card.position == this.player.position  
     })
     
-    if(cards.length!=1){
-        
-        console.log(this.player.position)
-        console.log(cards)
-        throw new Error("Too many cards");
-    } 
+    if(cards.length!=1) throw new Error("Too many cards");
     
     this.card = cards[0]
 
-    if(this.card as Actions) {
-        this.card = this.card as Actions
-    } 
+    if(this.card as Actions) this.card = this.card as Actions; 
     
-    return [lauch[0], this.player, this.card, p]
-}
+    return [lauch[0], this.player, this.card]
+  }
+
+  checkMove(players : PlayerType[], dices : number[], jailTime : number, position : number) {
+    let inJailPlayer;
+
+    if (dices[1] != dices[0] && players[position].jailtime != 0 && players != inJailPlayer) 
+    {
+      position += 1;
+      if (players.length - 1 < position)
+        position = 0;
+    } else if(dices[1] == dices[0] && players[position].jailtime != 0 && players[position] != inJailPlayer) 
+    {
+      players[position].jailtime--;
+    } else if (players[position].jailtime == 0 || players[position] == inJailPlayer)
+    {
+      inJailPlayer = players[position];
+      inJailPlayer.position = 10;
+      inJailPlayer.jailtime++;
+      if (inJailPlayer.jailtime == 3) {
+        players[position].jailtime = jailTime;
+        inJailPlayer = undefined;
+      }
+      position += 1;
+      if (players.length - 1 < position)
+        position = 0;
+    }
+  }
 
   randomIntFromInterval(min: number, max: number) {
     // min and max included
@@ -100,19 +109,19 @@ class PlayerActions {
     return players;
   }
 
-  getPropreties(player: PlayerType, cards : [CardType]) {
-    cards.filter(card => {
-      if(card instanceof Cities) {
-        let card2 = card as Cities
-        return card2.owner == player
-      } else if(card instanceof Companies) 
-      {
-        let card2 = card as Companies
-        return card2.owner == player
-      }
-      return false
-    })
-  }
+  // getPropreties(player: PlayerType, cards : [CardType]) {
+  //   cards.filter(card => {
+  //     if(card instanceof Cities) {
+  //       let card2 = card as Cities
+  //       return card2.owner == player
+  //     } else if(card instanceof Companies) 
+  //     {
+  //       let card2 = card as Companies
+  //       return card2.owner == player
+  //     }
+  //     return false
+  //   })
+  // }
 }
 
 export default PlayerActions; 
