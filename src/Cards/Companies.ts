@@ -10,7 +10,7 @@ class Companies extends Passive {
     multiplier: number[],
     mortage: number,
     position: number,
-    owner?: PlayerType
+    owner: PlayerType
   ) {
     super();
     this.name = name;

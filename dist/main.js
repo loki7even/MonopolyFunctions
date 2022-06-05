@@ -16,6 +16,7 @@ class Game {
         this.cards = [];
         this.playerIndex = 0;
         this.center = 0;
+        this.lock = false;
         this.intiPlayers((players ? JSON.parse(players) : players), bankAmount);
         this.initCards(cards);
         this.ndBices = ndbices;
@@ -42,14 +43,14 @@ class Game {
                     cardObj = new Actions_1.Actions(card.name, card.actionType, card.description, card.pos);
                     break;
                 case "cities":
-                    cardObj = new Cities_1.Cities(card.name, card.cost, card.rent, card.mortagePrice, card.buildCost, card.pos);
+                    cardObj = new Cities_1.Cities(card.name, card.cost, card.rent, card.mortagePrice, card.buildCost, card.pos, card.owner);
                     break;
                 case "prison":
                     cardObj = new Prison_1.Prison(card.name, card.actionType, card.description, card.pos);
                     break;
                 case "companies":
                     cardObj = new Companies_1.Companies(card.name, card.cost, card.multiplier, // [4, 10], [25, 50, 100, 200] 
-                    card.mortgage, card.pos);
+                    card.mortgage, card.pos, card.owner);
                     break;
                 default:
                     break;
@@ -66,7 +67,7 @@ class Game {
         return (_a = this.getPlayer()) === null || _a === void 0 ? void 0 : _a.name;
     }
     getCard(position) {
-        let Card = undefined;
+        let Card = this.cards[32];
         this.cards.forEach(card => {
             if (position == card.position) {
                 Card = card;
@@ -120,12 +121,21 @@ class Game {
         this.updatePlayer(playersUpdate);
         let playerActions = new PlayerAction_1.default(this.players[this.playerIndex], this.cards, this.jailTime, this.startAmount);
         let turnData = playerActions.turn(this.ndBices);
-        playerActions.checkMove(this.players, turnData[0], this.jailTime, this.playerIndex);
-        if (turnData[2] instanceof Cities_1.Cities) {
-            playerActions.buy(this.players[this.playerIndex], turnData[2].cost);
-        }
-        // this.lock = true
+        console.log(this.playerIndex);
+        this.playerIndex = playerActions.checkMove(this.players, turnData[0], this.jailTime, this.playerIndex);
         return turnData;
+    }
+    checkAction(position, price, cardOwner, cardsUpdate, playersUpdate) {
+        let playerActions = new PlayerAction_1.default(this.players[this.playerIndex], this.cards, this.jailTime, this.startAmount);
+        console.log(this.getCard(position), cardOwner);
+        if (this.getCard(position) instanceof Cities_1.Cities && cardOwner == undefined) {
+            // this.lock = true
+            playerActions.buy(this.players[this.playerIndex], price, this.getCard(position));
+            console.log(cardOwner); // null ?????
+            return cardOwner = this.players[this.playerIndex];
+        }
+        this.updateCards(cardsUpdate);
+        this.updatePlayer(playersUpdate);
     }
 }
 exports.Game = Game;

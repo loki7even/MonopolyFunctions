@@ -20,28 +20,31 @@ class PlayerActions {
             this.card = this.card;
         return [lauch[0], this.player, this.card];
     }
-    checkMove(players, dices, jailTime, position) {
+    changePlayer(players, playerPos) {
+        playerPos += 1;
+        if (players.length - 1 < playerPos)
+            playerPos = 0;
+        return playerPos;
+    }
+    checkMove(players, dices, jailTime, playerPos) {
         let inJailPlayer;
-        if (dices[1] != dices[0] && players[position].jailtime != 0 && players != inJailPlayer) {
-            position += 1;
-            if (players.length - 1 < position)
-                position = 0;
+        if (dices[1] != dices[0]) {
+            playerPos = this.changePlayer(players, playerPos);
         }
-        else if (dices[1] == dices[0] && players[position].jailtime != 0 && players[position] != inJailPlayer) {
-            players[position].jailtime--;
+        else if (dices[1] == dices[0]) {
+            players[playerPos].jailtime--;
         }
-        else if (players[position].jailtime == 0 || players[position] == inJailPlayer) {
-            inJailPlayer = players[position];
+        else if (players[playerPos].jailtime == 0 || players[playerPos] == inJailPlayer) {
+            inJailPlayer = players[playerPos];
             inJailPlayer.position = 10;
             inJailPlayer.jailtime++;
             if (inJailPlayer.jailtime == 3) {
-                players[position].jailtime = jailTime;
+                players[playerPos].jailtime = jailTime;
                 inJailPlayer = undefined;
             }
-            position += 1;
-            if (players.length - 1 < position)
-                position = 0;
+            playerPos = this.changePlayer(players, playerPos);
         }
+        return playerPos;
     }
     randomIntFromInterval(min, max) {
         // min and max included
@@ -67,7 +70,7 @@ class PlayerActions {
         }
         return player;
     }
-    buy(player, total) {
+    buy(player, total, card) {
         if (player.bankAmount - total > 0)
             player.bankAmount -= total;
         return player;

@@ -1,3 +1,4 @@
+import { PlayerType } from "../Player";
 import { Passive } from "./CardsType";
 
 class Cities extends Passive {
@@ -10,7 +11,8 @@ class Cities extends Passive {
     rent: number[],
     buildingCost: number,
     mortagePrice: number,
-    position: number
+    position: number,
+    owner: PlayerType
   ) {
     super();
     this.name = name;
@@ -18,8 +20,8 @@ class Cities extends Passive {
     this.rent = rent;
     this.mortagePrice = mortagePrice;
     this.buildingCost= buildingCost;
-  
     this.position = position;
+    this.owner = owner;
   }
 }
 

@@ -26,7 +26,7 @@ class PlayerActions {
     this.player = this.movePlayer(this.player, lauch[1], this.cards.length-1, this.startAmount)
 
     let cards = this.cards.filter((card) => {
-        return card.position == this.player.position  
+      return card.position == this.player.position  
     })
     
     if(cards.length!=1) throw new Error("Too many cards");
@@ -38,30 +38,31 @@ class PlayerActions {
     return [lauch[0], this.player, this.card]
   }
 
-  checkMove(players : PlayerType[], dices : number[], jailTime : number, position : number) {
+  changePlayer(players : PlayerType[], playerPos : number) {
+    playerPos += 1;
+      if (players.length - 1 < playerPos) playerPos = 0;
+    return playerPos;
+  }
+
+  checkMove(players : PlayerType[], dices : number[], jailTime : number, playerPos : number) {
     let inJailPlayer;
 
-    if (dices[1] != dices[0] && players[position].jailtime != 0 && players != inJailPlayer) 
-    {
-      position += 1;
-      if (players.length - 1 < position)
-        position = 0;
-    } else if(dices[1] == dices[0] && players[position].jailtime != 0 && players[position] != inJailPlayer) 
-    {
-      players[position].jailtime--;
-    } else if (players[position].jailtime == 0 || players[position] == inJailPlayer)
-    {
-      inJailPlayer = players[position];
+    if (dices[1] != dices[0]) {
+      playerPos = this.changePlayer(players, playerPos);
+    } else if(dices[1] == dices[0]) {
+      players[playerPos].jailtime--;
+    } else if (players[playerPos].jailtime == 0 || players[playerPos] == inJailPlayer) {
+      inJailPlayer = players[playerPos];
       inJailPlayer.position = 10;
       inJailPlayer.jailtime++;
       if (inJailPlayer.jailtime == 3) {
-        players[position].jailtime = jailTime;
+        players[playerPos].jailtime = jailTime;
         inJailPlayer = undefined;
       }
-      position += 1;
-      if (players.length - 1 < position)
-        position = 0;
+      playerPos = this.changePlayer(players, playerPos);
     }
+
+    return playerPos;
   }
 
   randomIntFromInterval(min: number, max: number) {
@@ -92,9 +93,8 @@ class PlayerActions {
     return player;
   }
   
-  buy(player: PlayerType, total: number): PlayerType {
+  buy(player: PlayerType, total: number, card : CardType): PlayerType {
     if (player.bankAmount - total > 0) player.bankAmount -= total;
-  
     return player;
   }
   

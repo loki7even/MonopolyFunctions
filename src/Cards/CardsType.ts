@@ -7,7 +7,7 @@ interface CardType {
 
 abstract class Passive implements CardType {
   name!: string;
-  owner?: PlayerType;
+  owner!: PlayerType | null;
   cost!: number;
   mortagePrice!: number;
   description!: string;

@@ -16,6 +16,7 @@ export class Game {
   center: number = 0;
   startAmount: number;
   jailTime: number;
+  lock: boolean = false;
 
   constructor(players: Array<any> | string,
               cards: Array<any> = Cards.Cards_json,
@@ -67,7 +68,8 @@ export class Game {
                             card.rent,
                             card.mortagePrice, 
                             card.buildCost,
-                            card.pos)
+                            card.pos,
+                            card.owner)
           break;
         case "prison":
           cardObj = new Prison(card.name, 
@@ -81,7 +83,8 @@ export class Game {
                                 card.cost, 
                                 card.multiplier, // [4, 10], [25, 50, 100, 200] 
                                 card.mortgage,
-                                card.pos)
+                                card.pos,
+                                card.owner)
             break;
         
         default:
@@ -99,10 +102,10 @@ export class Game {
   }
 
   getCard(position : number) {
-    let Card = undefined
+    let Card = this.cards[32];
     this.cards.forEach(card =>{
       if (position == card.position) {
-        Card = card
+        Card = card;
       }
     })
     return Card;
@@ -159,16 +162,31 @@ export class Game {
     let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.jailTime, this.startAmount);
     let turnData = playerActions.turn(this.ndBices);
 
-    playerActions.checkMove(this.players, turnData[0] as number[], this.jailTime, this.playerIndex)
-
-    if(turnData[2] instanceof Cities) {
-      playerActions.buy(this.players[this.playerIndex], turnData[2].cost)
-    }
+    console.log(this.playerIndex);
     
-    // this.lock = true
+    this.playerIndex = playerActions.checkMove(this.players, turnData[0] as number[], this.jailTime, this.playerIndex)
+    
     return turnData;
   }
+
+  checkAction(position : number, price : number, cardOwner : PlayerType, cardsUpdate?: CardType[], playersUpdate?: PlayerType[]) {
+
+    let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.jailTime, this.startAmount);
+
+    console.log(this.getCard(position), cardOwner);
+
+    if (this.getCard(position) instanceof Cities && cardOwner == undefined) {
+      // this.lock = true
+      playerActions.buy(this.players[this.playerIndex], price, this.getCard(position));
+      console.log(cardOwner); // null ?????
+      return cardOwner = this.players[this.playerIndex];
+    }
+
+    this.updateCards(cardsUpdate)
+    this.updatePlayer(playersUpdate)
+  }
 }
+
 
 class Json {
   constructor(json :string ){
