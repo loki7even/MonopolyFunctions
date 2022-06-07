@@ -121,21 +121,25 @@ class Game {
         this.updatePlayer(playersUpdate);
         let playerActions = new PlayerAction_1.default(this.players[this.playerIndex], this.cards, this.jailTime, this.startAmount);
         let turnData = playerActions.turn(this.ndBices);
-        console.log(this.playerIndex);
         this.playerIndex = playerActions.checkMove(this.players, turnData[0], this.jailTime, this.playerIndex);
         return turnData;
     }
-    checkAction(position, price, cardOwner, cardsUpdate, playersUpdate) {
+    checkAction(action) {
         let playerActions = new PlayerAction_1.default(this.players[this.playerIndex], this.cards, this.jailTime, this.startAmount);
-        console.log(this.getCard(position), cardOwner);
-        if (this.getCard(position) instanceof Cities_1.Cities && cardOwner == undefined) {
-            // this.lock = true
-            playerActions.buy(this.players[this.playerIndex], price, this.getCard(position));
-            console.log(cardOwner); // null ?????
-            return cardOwner = this.players[this.playerIndex];
+        switch (action) {
+            case "buy":
+                playerActions.buy(this.players[this.playerIndex], this.getCard(this.players[this.playerIndex].position));
+                break;
+            case "sell":
+                playerActions.sell(this.players[this.playerIndex], this.getCard(this.players[this.playerIndex].position));
+                break;
+            case "bid":
+                console.log("lol");
+                break;
+            default:
+                console.log("Nope");
+                break;
         }
-        this.updateCards(cardsUpdate);
-        this.updatePlayer(playersUpdate);
     }
 }
 exports.Game = Game;

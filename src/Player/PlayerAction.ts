@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { CardType } from "../Cards/CardsType";
+import { CardType, Passive } from "../Cards/CardsType";
 import { Cities } from "../Cards/Cities";
 import { Companies } from "../Cards/Companies";
 import { Actions } from "../Cards/Actions";
@@ -93,15 +93,20 @@ class PlayerActions {
     return player;
   }
   
-  buy(player: PlayerType, total: number, card : CardType): PlayerType {
-    if (player.bankAmount - total > 0) player.bankAmount -= total;
-    return player;
+  buy(player: PlayerType, card : Passive) {
+    if ((card instanceof Cities || card instanceof Companies) && card.owner == null) {
+      if (player.bankAmount - card.cost > 0) {
+        card.owner = player;
+        player.bankAmount -= card.cost
+      } 
+    }
   }
   
-  sell(player: PlayerType, total: number): PlayerType {
-    player.bankAmount + total;
-  
-    return player;
+  sell(player: PlayerType, card : Passive) {
+    if ((card instanceof Cities || card instanceof Companies) && card.owner != null) {
+      player.bankAmount += card.cost
+      card.owner = null;
+    }
   }
   
   bid(players: [PlayerType], totalBid: number): [PlayerType] {

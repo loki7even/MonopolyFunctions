@@ -1,5 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const Cities_1 = require("../Cards/Cities");
+const Companies_1 = require("../Cards/Companies");
 class PlayerActions {
     constructor(player, cards, jailtime, startAmount) {
         this.player = player;
@@ -70,14 +72,19 @@ class PlayerActions {
         }
         return player;
     }
-    buy(player, total, card) {
-        if (player.bankAmount - total > 0)
-            player.bankAmount -= total;
-        return player;
+    buy(player, card) {
+        if ((card instanceof Cities_1.Cities || card instanceof Companies_1.Companies) && card.owner == null) {
+            if (player.bankAmount - card.cost > 0) {
+                card.owner = player;
+                player.bankAmount -= card.cost;
+            }
+        }
     }
-    sell(player, total) {
-        player.bankAmount + total;
-        return player;
+    sell(player, card) {
+        if ((card instanceof Cities_1.Cities || card instanceof Companies_1.Companies) && card.owner != null) {
+            player.bankAmount += card.cost;
+            card.owner = null;
+        }
     }
     bid(players, totalBid) {
         return players;

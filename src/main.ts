@@ -20,9 +20,9 @@ export class Game {
 
   constructor(players: Array<any> | string,
               cards: Array<any> = Cards.Cards_json,
-              bankAmount=1500, 
-              ndbices: number=2, 
-              startAmount: number =200, 
+              bankAmount = 1500, 
+              ndbices: number = 2, 
+              startAmount: number = 200, 
               jailTime:number =3, ...partyParam: any) {
               
     this.intiPlayers((players as string ? JSON.parse(players as string): players ), bankAmount);
@@ -161,29 +161,33 @@ export class Game {
 
     let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.jailTime, this.startAmount);
     let turnData = playerActions.turn(this.ndBices);
-
-    console.log(this.playerIndex);
     
     this.playerIndex = playerActions.checkMove(this.players, turnData[0] as number[], this.jailTime, this.playerIndex)
     
     return turnData;
   }
 
-  checkAction(position : number, price : number, cardOwner : PlayerType, cardsUpdate?: CardType[], playersUpdate?: PlayerType[]) {
+  checkAction(action : string){
 
     let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.jailTime, this.startAmount);
 
-    console.log(this.getCard(position), cardOwner);
+    switch (action) {
+        case "buy":
+          playerActions.buy(this.players[this.playerIndex], this.getCard(this.players[this.playerIndex].position) as Passive)
+          break;
 
-    if (this.getCard(position) instanceof Cities && cardOwner == undefined) {
-      // this.lock = true
-      playerActions.buy(this.players[this.playerIndex], price, this.getCard(position));
-      console.log(cardOwner); // null ?????
-      return cardOwner = this.players[this.playerIndex];
+        case "sell":
+          playerActions.sell(this.players[this.playerIndex], this.getCard(this.players[this.playerIndex].position) as Passive)
+          break;
+
+        case "bid":
+          console.log("lol");
+          break;
+          
+        default:
+          console.log("Nope");
+          break;
     }
-
-    this.updateCards(cardsUpdate)
-    this.updatePlayer(playersUpdate)
   }
 }
 
