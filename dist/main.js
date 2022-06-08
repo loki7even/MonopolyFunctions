@@ -16,7 +16,7 @@ class Game {
         this.cards = [];
         this.playerIndex = 0;
         this.center = 0;
-        this.lock = false;
+        this.lock = true;
         this.intiPlayers((players ? JSON.parse(players) : players), bankAmount);
         this.initCards(cards);
         this.ndBices = ndbices;
@@ -111,7 +111,8 @@ class Game {
     //    }
     // }
     turn(cardsUpdate, playersUpdate) {
-        // if(!this.lock) throw new Error("Not  yet");
+        if (!this.lock)
+            throw new Error("Not  yet");
         /* if(this.ws)
         {
           this.cards = transform(ws.get()).players
@@ -120,26 +121,30 @@ class Game {
         this.updateCards(cardsUpdate);
         this.updatePlayer(playersUpdate);
         let playerActions = new PlayerAction_1.default(this.players[this.playerIndex], this.cards, this.jailTime, this.startAmount);
-        let turnData = playerActions.turn(this.ndBices);
-        this.playerIndex = playerActions.checkMove(this.players, turnData[0], this.jailTime, this.playerIndex);
-        return turnData;
+        let turnData = playerActions.turn(this.ndBices, this.lock);
+        this.lock = false;
+        this.playerIndex = playerActions.checkMove(this.players, turnData[0], this.jailTime, this.playerIndex, this.lock);
+        return this.turnData = turnData;
     }
     checkAction(action) {
         let playerActions = new PlayerAction_1.default(this.players[this.playerIndex], this.cards, this.jailTime, this.startAmount);
         switch (action) {
             case "buy":
                 playerActions.buy(this.players[this.playerIndex], this.getCard(this.players[this.playerIndex].position));
+                this.lock = true;
+                playerActions.changePlayer(this.players, this.players[this.playerIndex].position, this.lock);
                 break;
             case "sell":
                 playerActions.sell(this.players[this.playerIndex], this.getCard(this.players[this.playerIndex].position));
+                this.lock = true;
+                if (this.players[this.playerIndex])
+                    playerActions.changePlayer(this.players, this.players[this.playerIndex].position, this.lock);
                 break;
             case "bid":
-                console.log("lol");
-                break;
-            default:
-                console.log("Nope");
+                this.lock = true;
                 break;
         }
+        this.playerIndex = playerActions.checkMove(this.players, this.turnData[0], this.jailTime, this.playerIndex, this.lock);
     }
 }
 exports.Game = Game;

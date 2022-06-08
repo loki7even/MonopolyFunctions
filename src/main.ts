@@ -16,7 +16,8 @@ export class Game {
   center: number = 0;
   startAmount: number;
   jailTime: number;
-  lock: boolean = false;
+  lock: boolean = true;
+  turnData!: (PlayerType | CardType | number[])[];
 
   constructor(players: Array<any> | string,
               cards: Array<any> = Cards.Cards_json,
@@ -149,7 +150,8 @@ export class Game {
   // }
 
   turn(cardsUpdate?: CardType[], playersUpdate?: PlayerType[]) {
-    // if(!this.lock) throw new Error("Not  yet");
+    if(!this.lock) throw new Error("Not  yet");
+    
     /* if(this.ws) 
     {
       this.cards = transform(ws.get()).players 
@@ -160,11 +162,14 @@ export class Game {
     this.updatePlayer(playersUpdate)
 
     let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.jailTime, this.startAmount);
-    let turnData = playerActions.turn(this.ndBices);
+    let turnData = playerActions.turn(this.ndBices, this.lock);
+
+    this.lock = false;
     
-    this.playerIndex = playerActions.checkMove(this.players, turnData[0] as number[], this.jailTime, this.playerIndex)
+    this.playerIndex = playerActions.checkMove(this.players, turnData[0] as number[], this.jailTime, this.playerIndex, this.lock)
+
     
-    return turnData;
+    return this.turnData = turnData;
   }
 
   checkAction(action : string){
@@ -172,22 +177,24 @@ export class Game {
     let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.jailTime, this.startAmount);
 
     switch (action) {
-        case "buy":
-          playerActions.buy(this.players[this.playerIndex], this.getCard(this.players[this.playerIndex].position) as Passive)
-          break;
+      case "buy":
+        playerActions.buy(this.players[this.playerIndex], this.getCard(this.players[this.playerIndex].position) as Passive)
+        this.lock = true;
+        playerActions.changePlayer(this.players, this.players[this.playerIndex].position, this.lock);
+        break;
 
-        case "sell":
-          playerActions.sell(this.players[this.playerIndex], this.getCard(this.players[this.playerIndex].position) as Passive)
-          break;
+      case "sell":
+        playerActions.sell(this.players[this.playerIndex], this.getCard(this.players[this.playerIndex].position) as Passive)
+        this.lock = true;
+        if ( this.players[this.playerIndex])
+        playerActions.changePlayer(this.players, this.players[this.playerIndex].position, this.lock);
+        break;
 
-        case "bid":
-          console.log("lol");
-          break;
-          
-        default:
-          console.log("Nope");
-          break;
+      case "bid":
+        this.lock = true;
+        break;
     }
+    this.playerIndex = playerActions.checkMove(this.players, this.turnData[0] as number[], this.jailTime, this.playerIndex, this.lock)
   }
 }
 

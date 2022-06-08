@@ -9,34 +9,41 @@ class PlayerActions {
         this.jailtime = jailtime;
         this.startAmount = startAmount;
     }
-    turn(dices) {
-        let lauch = this.launchdice(dices);
-        this.player = this.movePlayer(this.player, lauch[1], this.cards.length - 1, this.startAmount);
-        let cards = this.cards.filter((card) => {
-            return card.position == this.player.position;
-        });
-        if (cards.length != 1)
-            throw new Error("Too many cards");
-        this.card = cards[0];
-        if (this.card)
-            this.card = this.card;
-        return [lauch[0], this.player, this.card];
+    turn(dices, lock) {
+        if (lock) {
+            let lauch = this.launchdice(dices);
+            this.player = this.movePlayer(this.player, lauch[1], this.cards.length - 1, this.startAmount);
+            let cards = this.cards.filter((card) => {
+                return card.position == this.player.position;
+            });
+            if (cards.length != 1)
+                throw new Error("Too many cards");
+            this.card = cards[0];
+            if (this.card)
+                this.card = this.card;
+            return [lauch[0], this.player, this.card];
+        }
+        lock = false;
+        return [[0, 0]];
     }
-    changePlayer(players, playerPos) {
-        playerPos += 1;
-        if (players.length - 1 < playerPos)
-            playerPos = 0;
+    changePlayer(players, playerPos, lock) {
+        if (lock) {
+            playerPos += 1;
+            if (players.length - 1 < playerPos)
+                playerPos = 0;
+            lock != lock;
+        }
         return playerPos;
     }
-    checkMove(players, dices, jailTime, playerPos) {
+    checkMove(players, dices, jailTime, playerPos, lock) {
         let inJailPlayer;
-        if (dices[1] != dices[0]) {
-            playerPos = this.changePlayer(players, playerPos);
+        if (dices[1] != dices[0] && lock) {
+            playerPos = this.changePlayer(players, playerPos, lock);
         }
-        else if (dices[1] == dices[0]) {
+        else if (dices[1] == dices[0] && lock) {
             players[playerPos].jailtime--;
         }
-        else if (players[playerPos].jailtime == 0 || players[playerPos] == inJailPlayer) {
+        else if ((players[playerPos].jailtime == 0 || players[playerPos] == inJailPlayer) && lock) {
             inJailPlayer = players[playerPos];
             inJailPlayer.position = 10;
             inJailPlayer.jailtime++;
@@ -44,7 +51,7 @@ class PlayerActions {
                 players[playerPos].jailtime = jailTime;
                 inJailPlayer = undefined;
             }
-            playerPos = this.changePlayer(players, playerPos);
+            playerPos = this.changePlayer(players, playerPos, lock);
         }
         return playerPos;
     }
@@ -80,13 +87,21 @@ class PlayerActions {
             }
         }
     }
+    upgrade(card) {
+        if (card.owner != null) {
+        }
+    }
     sell(player, card) {
         if ((card instanceof Cities_1.Cities || card instanceof Companies_1.Companies) && card.owner != null) {
             player.bankAmount += card.cost;
             card.owner = null;
         }
     }
-    bid(players, totalBid) {
+    bid(players, totalBid, player, card) {
+        if ((card instanceof Cities_1.Cities || card instanceof Companies_1.Companies) && card.owner != null) {
+            player.bankAmount += card.cost;
+            card.owner = null;
+        }
         return players;
     }
 }
