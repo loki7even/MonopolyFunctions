@@ -18,6 +18,7 @@ export class Game {
   jailTime: number;
   lock: boolean = true;
   turnData!: (PlayerType | CardType | number[])[];
+  owner?: PlayerType;
 
   constructor(players: Array<any> | string,
               cards: Array<any> = Cards.Cards_json,
@@ -67,7 +68,7 @@ export class Game {
           cardObj = new Cities(card.name, 
                             card.cost, 
                             card.rent,
-                            card.mortagePrice, 
+                            card.mortage, 
                             card.buildCost,
                             card.pos,
                             card.owner)
@@ -112,6 +113,15 @@ export class Game {
     return Card;
   }
 
+  allCardsOwned() {
+    this.cards.forEach(card =>{
+      if (card instanceof (Cities || Companies) && card.owner == null) {
+        return false;
+      }
+    })
+    return true;
+  }
+
   updateCards(cardsUpdate?: CardType[]): void {
     this.cards.map((card) => {
       const card2 = cardsUpdate?.find((i2) => (i2.name = card.name));
@@ -126,28 +136,28 @@ export class Game {
     });
   }
 
-  // turnActionsCard(card: Actions, player: PlayerType){
-  //    switch (card.actionType) {
-  //       case 'goto':
-  //         let breakInBad = card as Prison;
-  //         breakInBad.players.push(player)
-  //         this.updatePlayer([player])
-  //         this.updateCards([breakInBad])
-  //         break;
-  //       case 'freePark':
-  //         player.bankAmount += this.center;
-  //         this.updatePlayer([player])
-  //         break;
-  //       case 'jail':
-  //         break;
-  //       case 'start':
-  //         player.bankAmount += this.startAmount
-  //         this.updatePlayer([player])
-  //         break;
-  //      default:
-  //        break;
-  //    }
-  // }
+  turnActionsCard(card: Actions, player: PlayerType){
+     switch (card.actionType) {
+        case 'goto':
+          let breakInBad = card as Prison;
+          breakInBad.players.push(player)
+          this.updatePlayer([player])
+          this.updateCards([breakInBad])
+          break;
+        case 'freePark':
+          player.bankAmount += this.center;
+          this.updatePlayer([player])
+          break;
+        case 'jail':
+          break;
+        case 'start':
+          player.bankAmount += this.startAmount
+          this.updatePlayer([player])
+          break;
+       default:
+         break;
+     }
+  }
 
   turn(cardsUpdate?: CardType[], playersUpdate?: PlayerType[]) {
     if(!this.lock) throw new Error("Not  yet");
@@ -162,13 +172,13 @@ export class Game {
     this.updatePlayer(playersUpdate)
 
     let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.jailTime, this.startAmount);
-    let turnData = playerActions.turn(this.ndBices, this.lock);
+    
+    let turnData = playerActions.turn(this.ndBices);
+
+    this.owner = this.players[this.playerIndex];
 
     this.lock = false;
-    
-    this.playerIndex = playerActions.checkMove(this.players, turnData[0] as number[], this.jailTime, this.playerIndex, this.lock)
 
-    
     return this.turnData = turnData;
   }
 
@@ -177,24 +187,36 @@ export class Game {
     let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.jailTime, this.startAmount);
 
     switch (action) {
-      case "buy":
-        playerActions.buy(this.players[this.playerIndex], this.getCard(this.players[this.playerIndex].position) as Passive)
-        this.lock = true;
-        playerActions.changePlayer(this.players, this.players[this.playerIndex].position, this.lock);
-        break;
-
-      case "sell":
-        playerActions.sell(this.players[this.playerIndex], this.getCard(this.players[this.playerIndex].position) as Passive)
-        this.lock = true;
-        if ( this.players[this.playerIndex])
-        playerActions.changePlayer(this.players, this.players[this.playerIndex].position, this.lock);
-        break;
-
-      case "bid":
-        this.lock = true;
-        break;
+      case "end turn":
+      this.lock = true;
+      this.playerIndex = playerActions.checkMove(this.players, this.turnData[0] as number[], this.jailTime, this.playerIndex, this.lock)
+      break;
     }
-    this.playerIndex = playerActions.checkMove(this.players, this.turnData[0] as number[], this.jailTime, this.playerIndex, this.lock)
+
+    if ((this.getCard(this.players[this.playerIndex].position) instanceof Cities || this.getCard(this.players[this.playerIndex].position) instanceof Companies) && this.owner != undefined) {
+      switch (action) {
+        case "buy":
+          playerActions.buy(this.players[this.playerIndex], this.getCard(this.players[this.playerIndex].position) as Passive)
+          this.owner = undefined;
+          break;
+
+        case "sell":
+          playerActions.sell(this.players[this.playerIndex], this.getCard(this.players[this.playerIndex].position) as Passive)
+          this.owner = undefined;
+          break;
+
+        case "upgrade":
+          playerActions.upgrade(this.players[this.playerIndex], this.getCard(this.players[this.playerIndex].position) as Passive, this.allCardsOwned());
+          this.owner = undefined;
+          break;
+
+        case "mortage":
+          break;
+
+        case "auction":
+          break;
+      }
+    }
   }
 }
 

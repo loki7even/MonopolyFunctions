@@ -10,7 +10,7 @@ class Cities extends Passive {
     cost: number,
     rent: number[],
     buildingCost: number,
-    mortagePrice: number,
+    mortage: boolean,
     position: number,
     owner: PlayerType
   ) {
@@ -18,7 +18,7 @@ class Cities extends Passive {
     this.name = name;
     this.cost = cost;
     this.rent = rent;
-    this.mortagePrice = mortagePrice;
+    this.mortage = mortage;
     this.buildingCost= buildingCost;
     this.position = position;
     this.owner = owner;

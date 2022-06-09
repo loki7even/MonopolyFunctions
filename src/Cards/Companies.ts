@@ -8,7 +8,7 @@ class Companies extends Passive {
     name: string,
     cost: number,
     multiplier: number[],
-    mortage: number,
+    mortage: boolean,
     position: number,
     owner: PlayerType
   ) {
@@ -16,7 +16,7 @@ class Companies extends Passive {
     this.name = name;
     this.cost = cost;
     this.multiplier = multiplier;
-    this.mortagePrice = mortage
+    this.mortage = mortage
     this.position = position;
     this.owner = owner;
   }

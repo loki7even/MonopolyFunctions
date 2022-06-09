@@ -20,45 +20,42 @@ class PlayerActions {
     this.startAmount = startAmount
   }
 
-  turn(dices: number, lock : boolean) {
-    if (lock) {
-      let lauch =  this.launchdice(dices);
-  
-      this.player = this.movePlayer(this.player, lauch[1], this.cards.length-1, this.startAmount);
-  
-      let cards = this.cards.filter((card) => {
-        return card.position == this.player.position;
-      })
-      
-      if(cards.length!=1) throw new Error("Too many cards");
-      
-      this.card = cards[0];
-  
-      if(this.card as Actions) this.card = this.card as Actions;
+  turn(dices: number) {
+    let lauch =  this.launchdice(dices);
 
-      return [lauch[0], this.player, this.card];
-    }
-    lock = false;
-    return [[0,0]];
+    this.player = this.movePlayer(this.player, lauch[1], this.cards.length-1, this.startAmount);
+
+    let cards = this.cards.filter((card) => {
+      return card.position == this.player.position;
+    })
+    
+    if(cards.length!=1) throw new Error("Too many cards");
+    
+    this.card = cards[0];
+
+    if(this.card as Actions) this.card = this.card as Actions;
+
+    return [lauch[0], this.player, this.card];
   }
 
   changePlayer(players : PlayerType[], playerPos : number, lock : boolean) {
-    if (lock) {
-      playerPos += 1;
-      if (players.length - 1 < playerPos) playerPos = 0;
-      lock != lock;
-    }
+    playerPos += 1;
+    if (players.length - 1 < playerPos) playerPos = 0;
+    lock = false;
     return playerPos;
   }
 
   checkMove(players : PlayerType[], dices : number[], jailTime : number, playerPos : number, lock : boolean) {
     let inJailPlayer;
 
+    console.log(players[playerPos].jailtime);
+
     if (dices[1] != dices[0] && lock) {
       playerPos = this.changePlayer(players, playerPos, lock);
     } else if(dices[1] == dices[0] && lock) {
       players[playerPos].jailtime--;
-    } else if ((players[playerPos].jailtime == 0 || players[playerPos] == inJailPlayer) && lock) {
+    } else if ((players[playerPos].jailtime == 0 || players[playerPos] == inJailPlayer)) {
+      console.log(players[playerPos].jailtime);
       inJailPlayer = players[playerPos];
       inJailPlayer.position = 10;
       inJailPlayer.jailtime++;
@@ -101,7 +98,7 @@ class PlayerActions {
   }
   
   buy(player: PlayerType, card : Passive) {
-    if ((card instanceof Cities || card instanceof Companies) && card.owner == null) {
+    if (card.owner == null) {
       if (player.bankAmount - card.cost > 0) {
         card.owner = player;
         player.bankAmount -= card.cost
@@ -109,25 +106,44 @@ class PlayerActions {
     }
   }
 
-  upgrade(card : Passive) {
-    if (card.owner != null) {
-      
+  upgrade(player: PlayerType, card : Passive, allCardsOwned : boolean) {
+    if (card.owner == player && allCardsOwned && player.bankAmount - card.cost > 0) {
+      card.propreties += 1;
+      if (card instanceof (Cities || Companies)) player.bankAmount -= card.buildingCost;
     }
   }
   
   sell(player: PlayerType, card : Passive) {
-    if ((card instanceof Cities || card instanceof Companies) && card.owner != null) {
+    if (card.owner != null) {
       player.bankAmount += card.cost
       card.owner = null;
     }
   }
   
-  bid(players: [PlayerType], totalBid: number, player: PlayerType, card : Passive): [PlayerType] {
-    if ((card instanceof Cities || card instanceof Companies) && card.owner != null) {
-      player.bankAmount += card.cost
-      card.owner = null;
+  mortage(player: PlayerType, card : Passive){
+    if (card.owner != null) {
+      card.mortage = true;
+      player.bankAmount += card.cost / 2;
+    }
+  }
+
+  auction(players: [PlayerType], totalBid: number, player: PlayerType, card : Passive): [PlayerType] {
+    if (card.owner != null) {
+      card.mortage = true;
+      // card.
     }
     return players;
+  }
+
+  rent(player: PlayerType, card : Passive, amount : number, dices : number) {
+    if (card.owner != null && card.owner != player) {
+      if (card instanceof Cities) {
+        player.bankAmount -= card.rent[amount];
+      }
+      if (card instanceof Companies) {
+        if (amount <= card.multiplier.length ) player.bankAmount -= dices*card.multiplier[amount];
+      }
+    }
   }
 
   // getPropreties(player: PlayerType, cards : [CardType]) {

@@ -8,7 +8,7 @@ class Companies extends CardsType_1.Passive {
         this.name = name;
         this.cost = cost;
         this.multiplier = multiplier;
-        this.mortagePrice = mortage;
+        this.mortage = mortage;
         this.position = position;
         this.owner = owner;
     }
