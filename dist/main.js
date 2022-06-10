@@ -11,7 +11,7 @@ const Companies_1 = require("./Cards/Companies");
 const Prison_1 = require("./Cards/Prison");
 const PlayerAction_1 = __importDefault(require("./Player/PlayerAction"));
 class Game {
-    constructor(players, cards = Cards_1.default.Cards_json, bankAmount = 1500, ndbices = 2, startAmount = 200, jailTime = 3, ...partyParam) {
+    constructor(players, cards = Cards_1.default.Cards_json, bankAmount = 1500, ndbices = 2, startAmount = 200, inJail = false, ...partyParam) {
         this.players = [];
         this.cards = [];
         this.playerIndex = 0;
@@ -21,7 +21,7 @@ class Game {
         this.initCards(cards);
         this.ndBices = ndbices;
         this.startAmount = startAmount;
-        this.jailTime = jailTime;
+        this.inJail = inJail;
     }
     intiPlayers(players, bankAmount) {
         players.forEach((player) => {
@@ -29,7 +29,8 @@ class Game {
                 name: (player ? JSON.parse(player) : player).name,
                 bankAmount: bankAmount,
                 position: 0,
-                jailtime: 3,
+                inJail: false,
+                count: 3,
                 ia: player.ia
             };
             this.players.push(playerObj);
@@ -108,7 +109,7 @@ class Game {
                 player.bankAmount += this.center;
                 this.updatePlayer([player]);
                 break;
-            case 'jail':
+            case 'inJail':
                 break;
             case 'start':
                 player.bankAmount += this.startAmount;
@@ -118,7 +119,7 @@ class Game {
                 break;
         }
     }
-    turn(cardsUpdate, playersUpdate) {
+    turn() {
         if (!this.lock)
             throw new Error("Not  yet");
         /* if(this.ws)
@@ -126,20 +127,18 @@ class Game {
           this.cards = transform(ws.get()).players
           this.players = transform(ws.get()).cards
         }*/
-        this.updateCards(cardsUpdate);
-        this.updatePlayer(playersUpdate);
-        let playerActions = new PlayerAction_1.default(this.players[this.playerIndex], this.cards, this.jailTime, this.startAmount);
+        let playerActions = new PlayerAction_1.default(this.players[this.playerIndex], this.cards, this.inJail, this.startAmount);
         let turnData = playerActions.turn(this.ndBices);
         this.owner = this.players[this.playerIndex];
         this.lock = false;
         return this.turnData = turnData;
     }
     checkAction(action) {
-        let playerActions = new PlayerAction_1.default(this.players[this.playerIndex], this.cards, this.jailTime, this.startAmount);
+        let playerActions = new PlayerAction_1.default(this.players[this.playerIndex], this.cards, this.inJail, this.startAmount);
         switch (action) {
             case "end turn":
                 this.lock = true;
-                this.playerIndex = playerActions.checkMove(this.players, this.turnData[0], this.jailTime, this.playerIndex, this.lock);
+                this.playerIndex = playerActions.checkMove(this.players, this.turnData[0], this.playerIndex, this.lock);
                 break;
         }
         if ((this.getCard(this.players[this.playerIndex].position) instanceof Cities_1.Cities || this.getCard(this.players[this.playerIndex].position) instanceof Companies_1.Companies) && this.owner != undefined) {

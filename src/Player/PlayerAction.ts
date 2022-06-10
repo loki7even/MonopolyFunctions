@@ -10,14 +10,15 @@ class PlayerActions {
   player: PlayerType;
   cards: CardType[];
   card: CardType | undefined;
-  jailtime: number;
+  inJail: boolean;
   startAmount: number;
+  inJailPlayer?: PlayerType;
 
-  constructor(player: PlayerType, cards : Array<CardType>, jailtime:number, startAmount:number) {
+  constructor(player: PlayerType, cards : Array<CardType>, inJail:boolean, startAmount:number) {
     this.player = player;
     this.cards = cards;
-    this.jailtime = jailtime
-    this.startAmount = startAmount
+    this.inJail = inJail;
+    this.startAmount = startAmount;
   }
 
   turn(dices: number) {
@@ -45,25 +46,24 @@ class PlayerActions {
     return playerPos;
   }
 
-  checkMove(players : PlayerType[], dices : number[], jailTime : number, playerPos : number, lock : boolean) {
-    let inJailPlayer;
-
-    console.log(players[playerPos].jailtime);
-
-    if (dices[1] != dices[0] && lock) {
+  checkMove(players : PlayerType[], dices : number[], playerPos : number, lock : boolean) {
+    if (dices[1] != dices[0] && lock && players[playerPos].inJail == false) {
+      players[playerPos].jailTime = 3;
       playerPos = this.changePlayer(players, playerPos, lock);
-    } else if(dices[1] == dices[0] && lock) {
-      players[playerPos].jailtime--;
-    } else if ((players[playerPos].jailtime == 0 || players[playerPos] == inJailPlayer)) {
-      console.log(players[playerPos].jailtime);
-      inJailPlayer = players[playerPos];
-      inJailPlayer.position = 10;
-      inJailPlayer.jailtime++;
-      if (inJailPlayer.jailtime == 3) {
-        players[playerPos].jailtime = jailTime;
-        inJailPlayer = undefined;
+    } else if(dices[1] == dices[0] && lock && players[playerPos].inJail == false) {
+      players[playerPos].jailTime -= 1;
+      console.log(players[playerPos].jailTime);
+    }
+    if (players[playerPos].jailTime == 0 || players[playerPos].inJail == true) {
+      this.inJailPlayer = players[playerPos];
+      this.inJailPlayer.inJail = true;
+      this.inJailPlayer.position = 10;
+      this.inJailPlayer.jailTime ++;
+      playerPos = this.changePlayer(players, playerPos, lock);
+      console.log(this.inJailPlayer.jailTime, this.inJailPlayer);
+      if (this.inJailPlayer.jailTime == 3) {
+        this.inJailPlayer.inJail = false;
       }
-      playerPos = this.changePlayer(players, playerPos, lock);
     }
 
     return playerPos;
@@ -109,7 +109,8 @@ class PlayerActions {
   upgrade(player: PlayerType, card : Passive, allCardsOwned : boolean) {
     if (card.owner == player && allCardsOwned && player.bankAmount - card.cost > 0) {
       card.propreties += 1;
-      if (card instanceof (Cities || Companies)) player.bankAmount -= card.buildingCost;
+      if (card instanceof Cities) player.bankAmount -= card.buildingCost;
+      if (card instanceof Companies) player.bankAmount -= card.cost;
     }
   }
   
@@ -137,28 +138,15 @@ class PlayerActions {
 
   rent(player: PlayerType, card : Passive, amount : number, dices : number) {
     if (card.owner != null && card.owner != player) {
-      if (card instanceof Cities) {
+      if (card instanceof Cities && player.bankAmount - card.rent[amount] > 0) {
         player.bankAmount -= card.rent[amount];
+        card.owner.bankAmount += card.rent[amount];
       }
-      if (card instanceof Companies) {
+      if (card instanceof Companies && player.bankAmount - dices*card.multiplier[amount] > 0) {
         if (amount <= card.multiplier.length ) player.bankAmount -= dices*card.multiplier[amount];
       }
     }
   }
-
-  // getPropreties(player: PlayerType, cards : [CardType]) {
-  //   cards.filter(card => {
-  //     if(card instanceof Cities) {
-  //       let card2 = card as Cities
-  //       return card2.owner == player
-  //     } else if(card instanceof Companies) 
-  //     {
-  //       let card2 = card as Companies
-  //       return card2.owner == player
-  //     }
-  //     return false
-  //   })
-  // }
 }
 
 export default PlayerActions; 

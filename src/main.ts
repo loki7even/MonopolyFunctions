@@ -15,7 +15,7 @@ export class Game {
   ndBices: number;
   center: number = 0;
   startAmount: number;
-  jailTime: number;
+  inJail: boolean;
   lock: boolean = true;
   turnData!: (PlayerType | CardType | number[])[];
   owner?: PlayerType;
@@ -25,13 +25,13 @@ export class Game {
               bankAmount = 1500, 
               ndbices: number = 2, 
               startAmount: number = 200, 
-              jailTime:number =3, ...partyParam: any) {
+              inJail:boolean = false, ...partyParam: any) {
               
     this.intiPlayers((players as string ? JSON.parse(players as string): players ), bankAmount);
     this.initCards(cards);
-    this.ndBices = ndbices
-    this.startAmount = startAmount
-    this.jailTime = jailTime
+    this.ndBices = ndbices;
+    this.startAmount = startAmount;
+    this.inJail = inJail;
   }
 
   intiPlayers(players: Array<any>, bankAmount: number) {
@@ -42,7 +42,8 @@ export class Game {
         name: (player as string ? JSON.parse(player): player ).name,
         bankAmount: bankAmount,
         position: 0,
-        jailtime: 3,
+        inJail: false,
+        jailTime: 3,
         ia: player.ia
       }
       this.players.push(playerObj)
@@ -122,44 +123,44 @@ export class Game {
     return true;
   }
 
-  updateCards(cardsUpdate?: CardType[]): void {
-    this.cards.map((card) => {
-      const card2 = cardsUpdate?.find((i2) => (i2.name = card.name));
-      return card2 ? card2 : card;
-    });
-  }
+  // updateCards(cardsUpdate?: CardType[]): void {
+  //   this.cards.map((card) => {
+  //     const card2 = cardsUpdate?.find((i2) => (i2.name = card.name));
+  //     return card2 ? card2 : card;
+  //   });
+  // }
 
-  updatePlayer(playersUpdate?: PlayerType[]) : void {
-    this.players?.map((player) => {
-      const player2 = playersUpdate?.find((i2) => (i2.name = player.name));
-      return player2 ? player2 : player;
-    });
-  }
+  // updatePlayer(playersUpdate?: PlayerType[]) : void {
+  //   this.players?.map((player) => {
+  //     const player2 = playersUpdate?.find((i2) => (i2.name = player.name));
+  //     return player2 ? player2 : player;
+  //   });
+  // }
 
   turnActionsCard(card: Actions, player: PlayerType){
      switch (card.actionType) {
         case 'goto':
-          let breakInBad = card as Prison;
-          breakInBad.players.push(player)
-          this.updatePlayer([player])
-          this.updateCards([breakInBad])
+        //   let breakInBad = card as Prison;
+        //   breakInBad.players.push(player)
+        //   this.updatePlayer([player])
+        //   this.updateCards([breakInBad])
           break;
         case 'freePark':
-          player.bankAmount += this.center;
-          this.updatePlayer([player])
+          // player.bankAmount += this.center;
+          // this.updatePlayer([player])
           break;
-        case 'jail':
+        case 'inJail':
           break;
         case 'start':
-          player.bankAmount += this.startAmount
-          this.updatePlayer([player])
+          // player.bankAmount += this.startAmount
+          // this.updatePlayer([player])
           break;
        default:
          break;
      }
   }
 
-  turn(cardsUpdate?: CardType[], playersUpdate?: PlayerType[]) {
+  turn() {
     if(!this.lock) throw new Error("Not  yet");
     
     /* if(this.ws) 
@@ -167,11 +168,7 @@ export class Game {
       this.cards = transform(ws.get()).players 
       this.players = transform(ws.get()).cards
     }*/
-    
-    this.updateCards(cardsUpdate)
-    this.updatePlayer(playersUpdate)
-
-    let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.jailTime, this.startAmount);
+    let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.inJail, this.startAmount);
     
     let turnData = playerActions.turn(this.ndBices);
 
@@ -184,12 +181,12 @@ export class Game {
 
   checkAction(action : string){
 
-    let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.jailTime, this.startAmount);
+    let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.inJail, this.startAmount);
 
     switch (action) {
       case "end turn":
       this.lock = true;
-      this.playerIndex = playerActions.checkMove(this.players, this.turnData[0] as number[], this.jailTime, this.playerIndex, this.lock)
+      this.playerIndex = playerActions.checkMove(this.players, this.turnData[0] as number[], this.playerIndex, this.lock)
       break;
     }
 

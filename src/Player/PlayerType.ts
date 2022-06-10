@@ -2,7 +2,8 @@ interface PlayerType {
   name: string;
   bankAmount: number;
   position: number;
-  jailtime: number;
+  inJail: boolean;
+  jailTime: number;
   ia: string | null;
 }
 
