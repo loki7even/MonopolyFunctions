@@ -30,7 +30,7 @@ class Game {
                 bankAmount: bankAmount,
                 position: 0,
                 inJail: false,
-                count: 3,
+                jailTime: 3,
                 ia: player.ia
             };
             this.players.push(playerObj);
@@ -44,7 +44,7 @@ class Game {
                     cardObj = new Actions_1.Actions(card.name, card.actionType, card.description, card.pos);
                     break;
                 case "cities":
-                    cardObj = new Cities_1.Cities(card.name, card.cost, card.rent, card.mortage, card.buildCost, card.pos, card.owner);
+                    cardObj = new Cities_1.Cities(card.name, card.cost, card.rent, card.buildCost, card.mortage, card.pos, card.owner);
                     break;
                 case "prison":
                     cardObj = new Prison_1.Prison(card.name, card.actionType, card.description, card.pos);
@@ -76,44 +76,46 @@ class Game {
         });
         return Card;
     }
+    getCards() {
+        return this.cards;
+    }
     allCardsOwned() {
         this.cards.forEach(card => {
-            if (card instanceof (Cities_1.Cities || Companies_1.Companies) && card.owner == null) {
+            if ((card instanceof Cities_1.Cities || card instanceof Companies_1.Companies) && card.owner == null) {
                 return false;
             }
         });
         return true;
     }
-    updateCards(cardsUpdate) {
-        this.cards.map((card) => {
-            const card2 = cardsUpdate === null || cardsUpdate === void 0 ? void 0 : cardsUpdate.find((i2) => (i2.name = card.name));
-            return card2 ? card2 : card;
-        });
-    }
-    updatePlayer(playersUpdate) {
-        var _a;
-        (_a = this.players) === null || _a === void 0 ? void 0 : _a.map((player) => {
-            const player2 = playersUpdate === null || playersUpdate === void 0 ? void 0 : playersUpdate.find((i2) => (i2.name = player.name));
-            return player2 ? player2 : player;
-        });
-    }
+    // updateCards(cardsUpdate?: CardType[]): void {
+    //   this.cards.map((card) => {
+    //     const card2 = cardsUpdate?.find((i2) => (i2.name = card.name));
+    //     return card2 ? card2 : card;
+    //   });
+    // }
+    // updatePlayer(playersUpdate?: PlayerType[]) : void {
+    //   this.players?.map((player) => {
+    //     const player2 = playersUpdate?.find((i2) => (i2.name = player.name));
+    //     return player2 ? player2 : player;
+    //   });
+    // }
     turnActionsCard(card, player) {
         switch (card.actionType) {
             case 'goto':
-                let breakInBad = card;
-                breakInBad.players.push(player);
-                this.updatePlayer([player]);
-                this.updateCards([breakInBad]);
+                //   let breakInBad = card as Prison;
+                //   breakInBad.players.push(player)
+                //   this.updatePlayer([player])
+                //   this.updateCards([breakInBad])
                 break;
             case 'freePark':
-                player.bankAmount += this.center;
-                this.updatePlayer([player]);
+                // player.bankAmount += this.center;
+                // this.updatePlayer([player])
                 break;
             case 'inJail':
                 break;
             case 'start':
-                player.bankAmount += this.startAmount;
-                this.updatePlayer([player]);
+                // player.bankAmount += this.startAmount
+                // this.updatePlayer([player])
                 break;
             default:
                 break;
@@ -141,18 +143,26 @@ class Game {
                 this.playerIndex = playerActions.checkMove(this.players, this.turnData[0], this.playerIndex, this.lock);
                 break;
         }
+        switch (action) {
+            case "pay jail fee":
+                playerActions.jailFee(50, "jailFee");
+                break;
+            case "use card":
+                playerActions.jailFee(50, "use card");
+                break;
+        }
         if ((this.getCard(this.players[this.playerIndex].position) instanceof Cities_1.Cities || this.getCard(this.players[this.playerIndex].position) instanceof Companies_1.Companies) && this.owner != undefined) {
             switch (action) {
                 case "buy":
-                    playerActions.buy(this.players[this.playerIndex], this.getCard(this.players[this.playerIndex].position));
+                    playerActions.buy(this.getCard(this.players[this.playerIndex].position));
                     this.owner = undefined;
                     break;
                 case "sell":
-                    playerActions.sell(this.players[this.playerIndex], this.getCard(this.players[this.playerIndex].position));
+                    playerActions.sell(this.getCard(this.players[this.playerIndex].position));
                     this.owner = undefined;
                     break;
                 case "upgrade":
-                    playerActions.upgrade(this.players[this.playerIndex], this.getCard(this.players[this.playerIndex].position), this.allCardsOwned());
+                    playerActions.upgrade(this.getCard(this.players[this.playerIndex].position), this.allCardsOwned());
                     this.owner = undefined;
                     break;
                 case "mortage":

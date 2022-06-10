@@ -68,9 +68,9 @@ export class Game {
         case "cities":
           cardObj = new Cities(card.name, 
                             card.cost, 
-                            card.rent,
-                            card.mortage, 
+                            card.rent, 
                             card.buildCost,
+                            card.mortage,
                             card.pos,
                             card.owner)
           break;
@@ -114,9 +114,13 @@ export class Game {
     return Card;
   }
 
+  getCards() {
+    return this.cards;
+  }
+
   allCardsOwned() {
     this.cards.forEach(card =>{
-      if (card instanceof (Cities || Companies) && card.owner == null) {
+      if ((card instanceof Cities || card instanceof Companies) && card.owner == null) {
         return false;
       }
     })
@@ -190,20 +194,29 @@ export class Game {
       break;
     }
 
+    switch (action) {
+      case "pay jail fee":
+        playerActions.jailFee(50, "jailFee")
+        break;
+      case "use card":
+        playerActions.jailFee(50, "use card")
+        break;
+    }
+
     if ((this.getCard(this.players[this.playerIndex].position) instanceof Cities || this.getCard(this.players[this.playerIndex].position) instanceof Companies) && this.owner != undefined) {
       switch (action) {
         case "buy":
-          playerActions.buy(this.players[this.playerIndex], this.getCard(this.players[this.playerIndex].position) as Passive)
+          playerActions.buy(this.getCard(this.players[this.playerIndex].position) as Passive)
           this.owner = undefined;
           break;
 
         case "sell":
-          playerActions.sell(this.players[this.playerIndex], this.getCard(this.players[this.playerIndex].position) as Passive)
+          playerActions.sell(this.getCard(this.players[this.playerIndex].position) as Passive)
           this.owner = undefined;
           break;
 
         case "upgrade":
-          playerActions.upgrade(this.players[this.playerIndex], this.getCard(this.players[this.playerIndex].position) as Passive, this.allCardsOwned());
+          playerActions.upgrade(this.getCard(this.players[this.playerIndex].position) as Passive, this.allCardsOwned());
           this.owner = undefined;
           break;
 
