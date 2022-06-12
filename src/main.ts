@@ -69,6 +69,7 @@ export class Game {
           cardObj = new Cities(card.name, 
                             card.cost, 
                             card.rent, 
+                            card.color,
                             card.buildCost,
                             card.mortage,
                             card.pos,
@@ -118,13 +119,24 @@ export class Game {
     return this.cards;
   }
 
-  allCardsOwned() {
+  allCardsOwned(cardColor : string) {
+    let count = 0;
+    let specialCount = 0;
     this.cards.forEach(card =>{
-      if ((card instanceof Cities || card instanceof Companies) && card.owner == null) {
-        return false;
+      if (card instanceof Cities && card.owner != null && !card.mortage) {
+        if (cardColor == card.color) {
+          count++;
+        }
+        if (cardColor == "blue") {
+          specialCount++;
+        }
+        if (cardColor == "brown") {
+          specialCount++;
+        }
       }
     })
-    return true;
+
+    return (specialCount == 2 || count == 3);
   }
 
   // updateCards(cardsUpdate?: CardType[]): void {
@@ -173,8 +185,8 @@ export class Game {
       this.players = transform(ws.get()).cards
     }*/
     let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.inJail, this.startAmount);
-    
-    let turnData = playerActions.turn(this.ndBices);
+    let turnData! : (PlayerType | CardType | number[])[];
+    if (!this.players[this.playerIndex].inJail) turnData = playerActions.turn(this.ndBices);
 
     this.owner = this.players[this.playerIndex];
 
@@ -182,25 +194,40 @@ export class Game {
 
     return this.turnData = turnData;
   }
-
+  
   checkAction(action : string){
-
+    
     let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.inJail, this.startAmount);
-
+    let colorSet = this.getCard(this.players[this.playerIndex].position) as Cities
+    console.log(this.allCardsOwned(colorSet.color));
+    
     switch (action) {
       case "end turn":
-      this.lock = true;
+        this.lock = true;
+      if (this.players[this.playerIndex].inJail) this.playerIndex = playerActions.changePlayer(this.players, this.playerIndex, this.lock)
       this.playerIndex = playerActions.checkMove(this.players, this.turnData[0] as number[], this.playerIndex, this.lock)
       break;
     }
-
+    
     switch (action) {
       case "pay jail fee":
         playerActions.jailFee(50, "jailFee")
+        this.lock = true;
         break;
-      case "use card":
-        playerActions.jailFee(50, "use card")
+        case "use card":
+          playerActions.jailFee(50, "use card")
+          this.lock = true;
         break;
+      }
+      
+
+    if (this.getCard(this.players[this.playerIndex].position) instanceof Cities && this.owner != undefined && this.allCardsOwned(colorSet.color)) {
+      switch (action) {
+        case "upgrade":
+          playerActions.upgrade(this.getCard(this.players[this.playerIndex].position) as Passive);
+          this.owner = undefined;
+          break;
+      }
     }
 
     if ((this.getCard(this.players[this.playerIndex].position) instanceof Cities || this.getCard(this.players[this.playerIndex].position) instanceof Companies) && this.owner != undefined) {
@@ -210,26 +237,39 @@ export class Game {
           this.owner = undefined;
           break;
 
-        case "sell":
-          playerActions.sell(this.getCard(this.players[this.playerIndex].position) as Passive)
-          this.owner = undefined;
-          break;
-
-        case "upgrade":
-          playerActions.upgrade(this.getCard(this.players[this.playerIndex].position) as Passive, this.allCardsOwned());
+        case "sell property":
+          playerActions.sellProperty(this.getCard(this.players[this.playerIndex].position) as Passive, this.allCardsOwned(colorSet.color))
           this.owner = undefined;
           break;
 
         case "mortage":
+          playerActions.mortage(this.getCard(this.players[this.playerIndex].position) as Passive, this.allCardsOwned(colorSet.color));
+          this.owner = undefined;
+          break;
+
+        case "unmortage":
+          playerActions.unMortage(this.getCard(this.players[this.playerIndex].position) as Passive);
+          this.owner = undefined;
+          break;
+
+        case "sell building":
+          playerActions.sellBuilding(this.getCard(this.players[this.playerIndex].position) as Passive);
+          this.owner = undefined;
+          break;
+
+        case "sell all buildings":
+          playerActions.sellAllBuildings(colorSet.color);
+          this.owner = undefined;
           break;
 
         case "auction":
+          // playerActions.auction(this.getCard(this.players[this.playerIndex].position) as Passive);
+          this.owner = undefined;
           break;
       }
     }
   }
 }
-
 
 class Json {
   constructor(json :string ){
