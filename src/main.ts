@@ -18,6 +18,7 @@ export class Game {
   inJail: boolean;
   lock: boolean = true;
   turnData!: (PlayerType | CardType | number[])[];
+  prisonLaunch?: number[];
   owner?: PlayerType;
 
   constructor(players: Array<any> | string,
@@ -139,19 +140,10 @@ export class Game {
     return (specialCount == 2 || count == 3);
   }
 
-  // updateCards(cardsUpdate?: CardType[]): void {
-  //   this.cards.map((card) => {
-  //     const card2 = cardsUpdate?.find((i2) => (i2.name = card.name));
-  //     return card2 ? card2 : card;
-  //   });
-  // }
+  moneyDistibution() {
+    
 
-  // updatePlayer(playersUpdate?: PlayerType[]) : void {
-  //   this.players?.map((player) => {
-  //     const player2 = playersUpdate?.find((i2) => (i2.name = player.name));
-  //     return player2 ? player2 : player;
-  //   });
-  // }
+  }
 
   turnActionsCard(card: Actions, player: PlayerType){
      switch (card.actionType) {
@@ -184,29 +176,35 @@ export class Game {
       this.cards = transform(ws.get()).players 
       this.players = transform(ws.get()).cards
     }*/
+
     let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.inJail, this.startAmount);
     let turnData! : (PlayerType | CardType | number[])[];
+    this.owner = this.players[this.playerIndex];
+
     if (!this.players[this.playerIndex].inJail) turnData = playerActions.turn(this.ndBices);
 
-    this.owner = this.players[this.playerIndex];
+    let prisonLaunch = playerActions.launchdice(this.ndBices)[0];
 
     this.lock = false;
 
-    return this.turnData = turnData;
+    this.turnData = turnData;
+    this.prisonLaunch = prisonLaunch;
+
+    return [turnData, prisonLaunch];
   }
   
   checkAction(action : string){
     
     let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.inJail, this.startAmount);
     let colorSet = this.getCard(this.players[this.playerIndex].position) as Cities
-    console.log(this.allCardsOwned(colorSet.color));
     
     switch (action) {
       case "end turn":
         this.lock = true;
-      if (this.players[this.playerIndex].inJail) this.playerIndex = playerActions.changePlayer(this.players, this.playerIndex, this.lock)
-      this.playerIndex = playerActions.checkMove(this.players, this.turnData[0] as number[], this.playerIndex, this.lock)
-      break;
+        this.owner = undefined;
+        if (this.players[this.playerIndex].inJail) this.lock = playerActions.checkJail(this.players, this.ndBices, this.playerIndex, this.lock, action, this.prisonLaunch);
+        if (!this.players[this.playerIndex].inJail) this.playerIndex = playerActions.checkMove(this.players, this.turnData[0] as number[], this.playerIndex, this.lock, this.owner);
+        break;
     }
     
     switch (action) {
@@ -214,12 +212,11 @@ export class Game {
         playerActions.jailFee(50, "jailFee")
         this.lock = true;
         break;
-        case "use card":
-          playerActions.jailFee(50, "use card")
-          this.lock = true;
-        break;
-      }
-      
+      case "use card":
+        playerActions.jailFee(50, "use card")
+        this.lock = true;
+      break;
+    }
 
     if (this.getCard(this.players[this.playerIndex].position) instanceof Cities && this.owner != undefined && this.allCardsOwned(colorSet.color)) {
       switch (action) {
@@ -238,7 +235,7 @@ export class Game {
           break;
 
         case "sell property":
-          playerActions.sellProperty(this.getCard(this.players[this.playerIndex].position) as Passive, this.allCardsOwned(colorSet.color))
+          playerActions.sellProperty(this.getCard(this.players[this.playerIndex].position) as Passive)
           this.owner = undefined;
           break;
 
@@ -264,6 +261,10 @@ export class Game {
 
         case "auction":
           // playerActions.auction(this.getCard(this.players[this.playerIndex].position) as Passive);
+          this.owner = undefined;
+          break;
+        
+        case "loan money":
           this.owner = undefined;
           break;
       }
