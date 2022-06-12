@@ -88,6 +88,7 @@ export class Game {
                                 card.cost, 
                                 card.multiplier, // [4, 10], [25, 50, 100, 200] 
                                 card.mortgage,
+                                card.bought,
                                 card.pos,
                                 card.owner)
             break;
@@ -120,9 +121,11 @@ export class Game {
     return this.cards;
   }
 
-  allCardsOwned(cardColor : string) {
+  allCardsOwned(cardColor? : string) {
     let count = 0;
     let specialCount = 0;
+    let railRoadCount = 0;
+    let taxeCount = 0;
     this.cards.forEach(card =>{
       if (card instanceof Cities && card.owner != null && !card.mortage) {
         if (cardColor == card.color) {
@@ -135,9 +138,17 @@ export class Game {
           specialCount++;
         }
       }
+      if (card instanceof Companies && card.owner != null && !card.mortage) {
+        if (card.multiplier.length == 3) {
+          taxeCount++;
+        }
+        if (card.multiplier.length == 5) {
+          railRoadCount++;
+        }
+      }
     })
 
-    return (specialCount == 2 || count == 3);
+    return (specialCount == 2 || count == 3 || railRoadCount == 4 || taxeCount == 2);
   }
 
   moneyDistibution() {
@@ -180,8 +191,9 @@ export class Game {
     let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.inJail, this.startAmount);
     let turnData! : (PlayerType | CardType | number[])[];
     this.owner = this.players[this.playerIndex];
+    let colorSet = this.getCard(this.players[this.playerIndex].position) as Cities
 
-    if (!this.players[this.playerIndex].inJail) turnData = playerActions.turn(this.ndBices);
+    if (!this.players[this.playerIndex].inJail) turnData = playerActions.turn(this.ndBices, this.allCardsOwned(colorSet.color));
 
     let prisonLaunch = playerActions.launchdice(this.ndBices)[0];
 

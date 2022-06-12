@@ -20,7 +20,7 @@ class PlayerActions {
     this.startAmount = startAmount;
   }
 
-  turn(dices: number) {
+  turn(dices: number, allCardsOwned : boolean) {
     let launch =  this.launchdice(dices);
 
     this.player = this.movePlayer(launch[1], this.cards.length-1, this.startAmount);
@@ -35,7 +35,7 @@ class PlayerActions {
 
     if(this.card instanceof Actions) this.actionCard(this.card);
 
-    if(this.card instanceof Passive && this.card.owner != null) this.rent(this.card , this.card.propreties, dices);
+    if(this.card instanceof Passive && this.card.owner != null) this.rent(this.card , this.card.propreties, dices, allCardsOwned);
 
     return [launch[0], this.player, this.card];
   }
@@ -113,6 +113,10 @@ class PlayerActions {
   
   buy(card : Passive) {
     if (card.owner == null && this.player.bankAmount - card.cost > 0) {
+      if (card instanceof Companies && card.propreties < card.multiplier.length && !card.bought) {
+        card.propreties += 1;
+        card.bought = true;
+      }
       card.owner = this.player;
       this.player.bankAmount -= card.cost;
     }
@@ -120,11 +124,10 @@ class PlayerActions {
 
   upgrade(card : Passive) {
     if (card.owner == this.player && this.player.bankAmount - card.cost > 0) {
-      if (card instanceof Cities && card.propreties < 5) {
+      if (card instanceof Cities && card.propreties < card.rent.length) {
         if (card.propreties == 4) this.player.bankAmount -= 4*card.buildCost;
         this.player.bankAmount -= card.buildCost;
       }
-      if (card instanceof Companies && card.propreties < 2) this.player.bankAmount -= card.cost;
       card.propreties += 1;
     }
   }
@@ -170,14 +173,21 @@ class PlayerActions {
     }
   }
   
-  rent(card : Passive, amount : number, dices : number) {
+  rent(card : Passive, amount : number, dices : number, allCardsOwned : boolean) {
     if (card.owner != null && card.owner != this.player && !card.mortage) {
       if (card instanceof Cities && this.player.bankAmount - card.rent[amount] > 0) {
-        this.player.bankAmount -= card.rent[amount];
-        card.owner.bankAmount += card.rent[amount];
+        this.player.bankAmount -= (allCardsOwned ? 2*card.rent[amount] : card.rent[amount]);
+        card.owner.bankAmount += (allCardsOwned ? 2*card.rent[amount] : card.rent[amount]);
       }
       if (card instanceof Companies && this.player.bankAmount - dices*card.multiplier[amount] > 0) {
-        if (amount <= card.multiplier.length ) this.player.bankAmount -= dices*card.multiplier[amount];
+        if (amount <= card.multiplier.length && card.multiplier.length == 3) {
+          this.player.bankAmount -= dices*card.multiplier[amount];
+          card.owner.bankAmount += dices*card.multiplier[amount];
+        }
+        if (amount <= card.multiplier.length && card.multiplier.length == 5) {
+          this.player.bankAmount -= 25*card.multiplier[amount];
+          card.owner.bankAmount += 25*card.multiplier[amount];
+        }
       }
     }
   }

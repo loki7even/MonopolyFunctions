@@ -51,7 +51,7 @@ class Game {
                     break;
                 case "companies":
                     cardObj = new Companies_1.Companies(card.name, card.cost, card.multiplier, // [4, 10], [25, 50, 100, 200] 
-                    card.mortgage, card.pos, card.owner);
+                    card.mortgage, card.bought, card.pos, card.owner);
                     break;
                 default:
                     break;
@@ -82,6 +82,8 @@ class Game {
     allCardsOwned(cardColor) {
         let count = 0;
         let specialCount = 0;
+        let railRoadCount = 0;
+        let taxeCount = 0;
         this.cards.forEach(card => {
             if (card instanceof Cities_1.Cities && card.owner != null && !card.mortage) {
                 if (cardColor == card.color) {
@@ -94,8 +96,16 @@ class Game {
                     specialCount++;
                 }
             }
+            if (card instanceof Companies_1.Companies && card.owner != null && !card.mortage) {
+                if (card.multiplier.length == 2) {
+                    taxeCount++;
+                }
+                if (card.multiplier.length == 4) {
+                    railRoadCount++;
+                }
+            }
         });
-        return (specialCount == 2 || count == 3);
+        return (specialCount == 2 || count == 3 || railRoadCount == 4 || taxeCount == 2);
     }
     moneyDistibution() {
     }
@@ -132,8 +142,9 @@ class Game {
         let playerActions = new PlayerAction_1.default(this.players[this.playerIndex], this.cards, this.inJail, this.startAmount);
         let turnData;
         this.owner = this.players[this.playerIndex];
+        let colorSet = this.getCard(this.players[this.playerIndex].position);
         if (!this.players[this.playerIndex].inJail)
-            turnData = playerActions.turn(this.ndBices);
+            turnData = playerActions.turn(this.ndBices, this.allCardsOwned(colorSet.color));
         let prisonLaunch = playerActions.launchdice(this.ndBices)[0];
         this.lock = false;
         this.turnData = turnData;
