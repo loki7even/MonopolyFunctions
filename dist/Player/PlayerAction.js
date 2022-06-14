@@ -27,48 +27,47 @@ class PlayerActions {
             this.rent(this.card, this.card.propreties, dices, allCardsOwned);
         return [launch[0], this.player, this.card];
     }
-    changePlayer(players, playerPos, lock) {
+    changePlayer(players, playerPos) {
         playerPos += 1;
         if (players.length - 1 < playerPos)
             playerPos = 0;
-        lock = false;
         return playerPos;
     }
-    checkMove(players, dices, playerPos, lock, owner) {
-        if (dices[1] != dices[0] && lock) {
+    checkMove(dices) {
+        if (dices[1] != dices[0]) {
             this.player.jailTime = 3;
-            playerPos = this.changePlayer(players, playerPos, lock);
         }
-        else if (dices[1] == dices[0] && lock) {
+        else if (dices[1] == dices[0]) {
             this.player.jailTime--;
+            return true;
         }
         if (this.player.jailTime == 0) {
             this.player.inJail = true;
             this.player.position = 10;
-            playerPos = this.changePlayer(players, playerPos, lock);
         }
-        return playerPos;
+        return false;
     }
-    checkJail(players, dices, playerPos, lock, action, launch, card) {
-        console.log(launch);
-        console.log(this.jailFee(50, action, card));
+    checkJail(players, playerPos, lock, launch, paid) {
         if (launch) {
             if (launch[0] == launch[1] && this.player.jailTime < 3) {
                 this.player.inJail = false;
                 this.player.jailTime = 3;
                 this.player = this.movePlayer(launch[1], this.cards.length - 1, this.startAmount);
-                return lock = false;
+                lock = false;
+                return [lock, playerPos];
             }
             if (this.player.jailTime < 3)
                 this.player.jailTime++;
-            if ((this.player.jailTime == 3 && this.jailFee(50, action, card)) || (this.player.jailTime == 3 && this.player.inJail && this.jailFee(50, action, card))) {
+            if ((this.player.jailTime == 3 && paid) || (this.player.jailTime == 3 && this.player.inJail && paid)) {
                 this.player.inJail = false;
                 this.player = this.movePlayer(launch[1], this.cards.length - 1, this.startAmount);
-                return lock = false;
+                lock = false;
+                return [lock, playerPos];
             }
         }
-        playerPos = this.changePlayer(players, playerPos, lock);
-        return lock = true;
+        if (!paid)
+            playerPos = this.changePlayer(players, playerPos);
+        return [lock, playerPos];
     }
     randomIntFromInterval(min, max) {
         // min and max included
@@ -95,7 +94,7 @@ class PlayerActions {
         return this.player;
     }
     buy(card) {
-        if (card.owner == null && this.player.bankAmount - card.cost > 0) {
+        if (card.owner == null && !this.bankrupt(card.cost)) {
             if (card instanceof Companies_1.Companies && card.propreties < card.multiplier.length && !card.bought) {
                 card.propreties += 1;
                 card.bought = true;
@@ -105,7 +104,7 @@ class PlayerActions {
         }
     }
     upgrade(card) {
-        if (card.owner == this.player && this.player.bankAmount - card.cost > 0) {
+        if (card.owner == this.player && !this.bankrupt(card.cost)) {
             if (card instanceof Cities_1.Cities && card.propreties < card.rent.length) {
                 if (card.propreties == 4)
                     this.player.bankAmount -= 4 * card.buildCost;
@@ -146,48 +145,62 @@ class PlayerActions {
         }
     }
     unMortage(card) {
-        if (card.mortage) {
+        if (card.mortage && !this.bankrupt(((card.cost / 2) + ((card.cost / 2) * 0.1)))) {
             card.mortage = false;
             this.player.bankAmount -= ((card.cost / 2) + ((card.cost / 2) * 0.1));
         }
     }
     rent(card, amount, dices, allCardsOwned) {
         if (card.owner != null && card.owner != this.player && !card.mortage) {
-            if (card instanceof Cities_1.Cities && this.player.bankAmount - card.rent[amount] > 0) {
-                this.player.bankAmount -= (allCardsOwned ? 2 * card.rent[amount] : card.rent[amount]);
-                card.owner.bankAmount += (allCardsOwned ? 2 * card.rent[amount] : card.rent[amount]);
-            }
-            if (card instanceof Companies_1.Companies && this.player.bankAmount - dices * card.multiplier[amount] > 0) {
-                if (amount <= card.multiplier.length && card.multiplier.length == 2) {
-                    this.player.bankAmount -= (allCardsOwned ? 2 * dices * card.multiplier[amount] : dices * card.multiplier[amount]);
-                    card.owner.bankAmount += (allCardsOwned ? 2 * dices * card.multiplier[amount] : dices * card.multiplier[amount]);
+            if (card instanceof Cities_1.Cities) {
+                if (amount == 0) {
+                    this.player.bankAmount -= (allCardsOwned ? 2 * card.rent[amount] : card.rent[amount]);
+                    card.owner.bankAmount += (allCardsOwned ? 2 * card.rent[amount] : card.rent[amount]);
                 }
-                if (amount <= card.multiplier.length && card.multiplier.length == 4) {
-                    this.player.bankAmount -= (allCardsOwned ? 2 * 25 * card.multiplier[amount] : 25 * card.multiplier[amount]);
-                    card.owner.bankAmount += (allCardsOwned ? 2 * 25 * card.multiplier[amount] : 25 * card.multiplier[amount]);
+                this.player.bankAmount -= card.rent[amount];
+                card.owner.bankAmount += card.rent[amount];
+            }
+            if (card instanceof Companies_1.Companies) {
+                if (amount <= card.multiplier.length && card.multiplier.length == 3) {
+                    this.player.bankAmount -= dices * card.multiplier[amount];
+                    card.owner.bankAmount += dices * card.multiplier[amount];
+                }
+                if (amount <= card.multiplier.length && card.multiplier.length == 5) {
+                    this.cards.forEach(card => {
+                        if (card instanceof Companies_1.Companies) {
+                            if (card.bought) {
+                                amount++;
+                            }
+                        }
+                    });
+                    this.player.bankAmount -= 25 * card.multiplier[amount - 1];
+                    card.owner.bankAmount += 25 * card.multiplier[amount - 1];
                 }
             }
         }
+        this.endGame();
     }
     jailFee(amount, action, card) {
         let paid = false;
-        switch (action) {
-            case "jailFee":
-                this.player.inJail = false;
-                this.player.jailTime = 3;
-                this.player.bankAmount -= amount;
-                paid = true;
-                break;
-            case "use card":
-                this.player.inJail = false;
-                this.player.jailTime = 3;
-                card === null || card === void 0 ? void 0 : card.players.forEach(player => {
-                    if (player = this.player) {
-                        player;
-                    }
-                });
-                paid = true;
-                break;
+        if (!this.bankrupt(amount)) {
+            switch (action) {
+                case "jailFee":
+                    this.player.inJail = false;
+                    this.player.jailTime = 3;
+                    this.player.bankAmount -= amount;
+                    paid = true;
+                    break;
+                case "use card":
+                    this.player.inJail = false;
+                    this.player.jailTime = 3;
+                    card === null || card === void 0 ? void 0 : card.players.forEach(player => {
+                        if (player = this.player) {
+                            player;
+                        }
+                    });
+                    paid = true;
+                    break;
+            }
         }
         return paid;
     }
@@ -199,7 +212,13 @@ class PlayerActions {
     }
     loan() {
     }
-    bankrupt() {
+    bankrupt(price) {
+        return (this.player.bankAmount - price < 0);
+    }
+    endGame() {
+        if (this.bankrupt(0)) {
+            this.player.bankRupted = true;
+        }
     }
     actionCard(card) {
     }

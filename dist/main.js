@@ -30,7 +30,8 @@ class Game {
                 bankAmount: bankAmount,
                 position: 0,
                 inJail: false,
-                jailTime: 3,
+                jailTime: 1,
+                bankRupted: false,
                 ia: player.ia
             };
             this.players.push(playerObj);
@@ -97,17 +98,25 @@ class Game {
                 }
             }
             if (card instanceof Companies_1.Companies && card.owner != null && !card.mortage) {
-                if (card.multiplier.length == 2) {
+                if (card.multiplier.length == 3) {
                     taxeCount++;
                 }
-                if (card.multiplier.length == 4) {
+                if (card.multiplier.length == 5) {
                     railRoadCount++;
                 }
             }
         });
         return (specialCount == 2 || count == 3 || railRoadCount == 4 || taxeCount == 2);
     }
-    moneyDistibution() {
+    end() {
+        let count = 0;
+        this.players.forEach(player => {
+            if (player.bankRupted)
+                count++;
+        });
+        return (count == this.players.length - 1);
+    }
+    moneyDistribution() {
     }
     turnActionsCard(card, player) {
         switch (card.actionType) {
@@ -132,24 +141,34 @@ class Game {
         }
     }
     turn() {
-        if (!this.lock)
-            throw new Error("Not  yet");
         /* if(this.ws)
         {
           this.cards = transform(ws.get()).players
           this.players = transform(ws.get()).cards
         }*/
-        let playerActions = new PlayerAction_1.default(this.players[this.playerIndex], this.cards, this.inJail, this.startAmount);
-        let turnData;
-        this.owner = this.players[this.playerIndex];
-        let colorSet = this.getCard(this.players[this.playerIndex].position);
-        if (!this.players[this.playerIndex].inJail)
-            turnData = playerActions.turn(this.ndBices, this.allCardsOwned(colorSet.color));
-        let prisonLaunch = playerActions.launchdice(this.ndBices)[0];
-        this.lock = false;
-        this.turnData = turnData;
-        this.prisonLaunch = prisonLaunch;
-        return [turnData, prisonLaunch];
+        if (this.lock && !this.players[this.playerIndex].bankRupted || this.canEnd && !this.players[this.playerIndex].bankRupted) {
+            this.lock = false;
+            let playerActions = new PlayerAction_1.default(this.players[this.playerIndex], this.cards, this.inJail, this.startAmount);
+            let colorSet = this.getCard(this.players[this.playerIndex].position);
+            let prisonLaunch;
+            let result;
+            if (!this.players[this.playerIndex].inJail) {
+                this.turnData = playerActions.turn(this.ndBices, this.allCardsOwned(colorSet.color));
+                this.canEnd = playerActions.checkMove(this.turnData[0]);
+            }
+            if (this.players[this.playerIndex].inJail) {
+                console.log(prisonLaunch);
+                prisonLaunch = playerActions.launchdice(this.ndBices)[0];
+                console.log(prisonLaunch);
+                result = playerActions.checkJail(this.players, this.playerIndex, this.lock, prisonLaunch);
+            }
+            this.owner = this.players[this.playerIndex];
+            this.canTurn = true;
+            this.prisonLaunch = prisonLaunch;
+        }
+        if (this.end()) {
+            console.log("lol");
+        }
     }
     checkAction(action) {
         let playerActions = new PlayerAction_1.default(this.players[this.playerIndex], this.cards, this.inJail, this.startAmount);
@@ -158,19 +177,23 @@ class Game {
             case "end turn":
                 this.lock = true;
                 this.owner = undefined;
-                if (this.players[this.playerIndex].inJail)
-                    this.lock = playerActions.checkJail(this.players, this.ndBices, this.playerIndex, this.lock, action, this.prisonLaunch);
-                if (!this.players[this.playerIndex].inJail)
-                    this.playerIndex = playerActions.checkMove(this.players, this.turnData[0], this.playerIndex, this.lock, this.owner);
+                if (this.players[this.playerIndex].bankRupted)
+                    this.playerIndex = playerActions.changePlayer(this.players, this.playerIndex);
+                if (!this.players[this.playerIndex].inJail && this.canTurn && !this.canEnd)
+                    this.playerIndex = playerActions.changePlayer(this.players, this.playerIndex);
+                this.canTurn = false;
                 break;
         }
+        let paid;
         switch (action) {
             case "pay jail fee":
-                playerActions.jailFee(50, "jailFee");
+                paid = playerActions.jailFee(50, "jailFee");
+                this.playerIndex = playerActions.checkJail(this.players, this.playerIndex, this.lock, this.prisonLaunch, paid)[1];
                 this.lock = true;
                 break;
             case "use card":
-                playerActions.jailFee(50, "use card");
+                paid = playerActions.jailFee(50, "use card");
+                this.playerIndex = playerActions.checkJail(this.players, this.playerIndex, this.lock, this.prisonLaunch, paid)[1];
                 this.lock = true;
                 break;
         }

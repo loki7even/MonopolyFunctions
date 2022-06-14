@@ -2,7 +2,7 @@ export let Cards_json : Array<any> = [
   {
     "type": "cities",
     "name": "Vire",
-    "rent" : [2, 4, 10, 30, 90, 160, 250],
+    "rent" : [2, 10, 30, 90, 160, 250],
     "buildCost": 50,
     "mortage": false,
     "cost": 60,
@@ -14,7 +14,7 @@ export let Cards_json : Array<any> = [
   {
     "type": "cities",
     "name": "Le-Mont-Saint-Michel",
-    "rent" : [4, 8, 20, 60, 180, 360, 450],
+    "rent" : [4, 20, 60, 180, 360, 450],
     "buildCost": 50,
     "mortage": false,
     "cost": 60,
@@ -26,7 +26,7 @@ export let Cards_json : Array<any> = [
   {
     "type": "cities",
     "name": "Alençon",
-    "rent" : [6, 12, 30, 90, 270, 400, 550],
+    "rent" : [6, 30, 90, 270, 400, 550],
     "buildCost": 50,
     "mortage": false,
     "cost": 100,
@@ -38,7 +38,7 @@ export let Cards_json : Array<any> = [
   {
     "type": "cities",
     "name": "Villedieu-Les-Poêles",
-    "rent" : [6, 12, 30, 90, 270, 400, 550],
+    "rent" : [6, 30, 90, 270, 400, 550],
     "buildCost": 50,
     "mortage": false,
     "cost": 60,
@@ -50,7 +50,7 @@ export let Cards_json : Array<any> = [
   {
     "type": "cities",
     "name": "Bernay",
-    "rent" : [8, 16, 40, 100, 300, 450, 600],
+    "rent" : [8, 40, 100, 300, 450, 600],
     "buildCost": 50,
     "mortage": false,
     "cost": 120,
@@ -62,7 +62,7 @@ export let Cards_json : Array<any> = [
   {
     "type": "cities",
     "name": "Pointe du Hoc",
-    "rent" : [10, 20, 50, 150, 450, 625, 750],
+    "rent" : [10, 50, 150, 450, 625, 750],
     "buildCost": 100,
     "mortage": false,
     "cost": 140,
@@ -74,7 +74,7 @@ export let Cards_json : Array<any> = [
   {
     "type": "cities",
     "name": "Fécamp",
-    "rent" : [10, 20, 50, 150, 450, 625, 750],
+    "rent" : [10, 50, 150, 450, 625, 750],
     "buildCost": 100,
     "mortage": false,
     "cost": 140,
@@ -86,7 +86,7 @@ export let Cards_json : Array<any> = [
   {
     "type": "cities",
     "name": "Lisieux",
-    "rent" : [12, 24, 60, 180, 500, 700, 900],
+    "rent" : [12, 60, 180, 500, 700, 900],
     "buildCost": 100,
     "mortage": false,
     "cost": 160,
@@ -98,7 +98,7 @@ export let Cards_json : Array<any> = [
   {
     "type": "cities",
     "name": "Le Bec-Hellouin",
-    "rent" : [14, 28, 70, 200, 550, 750, 950],
+    "rent" : [14, 70, 200, 550, 750, 950],
     "buildCost": 100,
     "mortage": false,
     "cost": 180,
@@ -110,7 +110,7 @@ export let Cards_json : Array<any> = [
   {
     "type": "cities",
     "name": "Forges-Les-Eaux",
-    "rent" : [14, 28, 70, 200, 550, 750, 950],
+    "rent" : [14, 70, 200, 550, 750, 950],
     "buildCost": 100,
     "mortage": false,
     "cost": 180,
@@ -122,7 +122,7 @@ export let Cards_json : Array<any> = [
   {
     "type": "cities",
     "name": "Villequier",
-    "rent" : [16, 32, 80, 220, 600, 800, 1000],
+    "rent" : [16, 80, 220, 600, 800, 1000],
     "buildCost": 100,
     "mortage": false,
     "cost": 200,
@@ -134,7 +134,7 @@ export let Cards_json : Array<any> = [
   {
     "type": "cities",
     "name": "Lyons-La-Forêt",
-    "rent" : [18, 36, 90, 250, 700, 875, 1050],
+    "rent" : [18, 90, 250, 700, 875, 1050],
     "buildCost": 150,
     "mortage": false,
     "cost": 220,
@@ -146,7 +146,7 @@ export let Cards_json : Array<any> = [
   {
     "type": "cities",
     "name": "Le Havre",
-    "rent" : [18, 36, 90, 250, 700, 875, 1050],
+    "rent" : [18, 90, 250, 700, 875, 1050],
     "buildCost": 150,
     "mortage": false,
     "cost": 220,
@@ -158,7 +158,7 @@ export let Cards_json : Array<any> = [
   {
     "type": "cities",
     "name": "Dieppe",
-    "rent" : [20, 40, 100, 300, 750, 925, 1100],
+    "rent" : [20, 100, 300, 750, 925, 1100],
     "buildCost": 150,
     "mortage": false,
     "cost": 220,
@@ -170,7 +170,7 @@ export let Cards_json : Array<any> = [
   {
     "type": "cities",
     "name": "Bayeux",
-    "rent" : [22, 44, 110, 330, 800, 975, 1150],
+    "rent" : [22, 110, 330, 800, 975, 1150],
     "buildCost": 150,
     "mortage": false,
     "cost": 260,
@@ -182,7 +182,7 @@ export let Cards_json : Array<any> = [
   {
     "type": "cities",
     "name": "Gisors",
-    "rent" : [22, 44, 110, 330, 800, 975, 1150],
+    "rent" : [22, 110, 330, 800, 975, 1150],
     "buildCost": 150,
     "mortage": false,
     "cost": 260,
@@ -194,7 +194,7 @@ export let Cards_json : Array<any> = [
   {
     "type": "cities",
     "name": "Giverny",
-    "rent" : [24, 48, 120, 360, 850, 1025, 1200],
+    "rent" : [24, 120, 360, 850, 1025, 1200],
     "buildCost": 150,
     "mortage": false,
     "cost": 280,
@@ -206,7 +206,7 @@ export let Cards_json : Array<any> = [
   {
     "type": "cities",
     "name": "Îles Chausey",
-    "rent" : [26, 52, 130, 390, 900, 1100, 1275],
+    "rent" : [26, 130, 390, 900, 1100, 1275],
     "buildCost": 200,
     "mortage": false,
     "cost": 300,
@@ -218,7 +218,7 @@ export let Cards_json : Array<any> = [
   {
     "type": "cities",
     "name": "Etretat",
-    "rent" : [26, 52, 130, 390, 900, 1100, 1275],
+    "rent" : [26, 130, 390, 900, 1100, 1275],
     "buildCost": 200,
     "mortage": false,
     "cost": 300,
@@ -230,7 +230,7 @@ export let Cards_json : Array<any> = [
   {
     "type": "cities",
     "name": "Honfleur",
-    "rent" : [28, 56, 150, 450, 1000, 1200, 1400],
+    "rent" : [28, 150, 450, 1000, 1200, 1400],
     "buildCost": 200,
     "mortage": false,
     "cost": 320,
@@ -242,7 +242,7 @@ export let Cards_json : Array<any> = [
   {
     "type": "cities",
     "name": "Cabourg",
-    "rent" : [35, 70, 175, 500, 1100, 1300, 1500],
+    "rent" : [35, 175, 500, 1100, 1300, 1500],
     "buildCost": 200,
     "mortage": false,
     "cost": 350,
@@ -254,7 +254,7 @@ export let Cards_json : Array<any> = [
   {
     "type": "cities",
     "name": "Deauville",
-    "rent" : [50, 100, 200, 600, 1400, 1700, 2000],
+    "rent" : [50, 200, 600, 1400, 1700, 2000],
     "buildCost": 200,
     "mortage": false,
     "cost": 400,

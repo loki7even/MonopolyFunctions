@@ -4,6 +4,7 @@ interface PlayerType {
   position: number;
   inJail: boolean;
   jailTime: number;
+  bankRupted: boolean;
   ia: string | null;
 }
 

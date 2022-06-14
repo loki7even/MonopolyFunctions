@@ -18,8 +18,10 @@ export class Game {
   inJail: boolean;
   lock: boolean = true;
   turnData!: (PlayerType | CardType | number[])[];
-  prisonLaunch?: number[];
   owner?: PlayerType;
+  canTurn?: boolean;
+  canEnd?: boolean;
+  prisonLaunch?: number[];
 
   constructor(players: Array<any> | string,
               cards: Array<any> = Cards.Cards_json,
@@ -44,7 +46,8 @@ export class Game {
         bankAmount: bankAmount,
         position: 0,
         inJail: false,
-        jailTime: 3,
+        jailTime: 1,
+        bankRupted: false,
         ia: player.ia
       }
       this.players.push(playerObj)
@@ -151,7 +154,15 @@ export class Game {
     return (specialCount == 2 || count == 3 || railRoadCount == 4 || taxeCount == 2);
   }
 
-  moneyDistibution() {
+  end() {
+    let count = 0;
+    this.players.forEach(player =>{
+      if (player.bankRupted) count++;
+    })
+    return (count == this.players.length - 1) 
+  }
+
+  moneyDistribution() {
     
 
   }
@@ -179,30 +190,41 @@ export class Game {
      }
   }
 
-  turn() {
-    if(!this.lock) throw new Error("Not  yet");
-    
+  turn() {    
     /* if(this.ws) 
     {
       this.cards = transform(ws.get()).players 
       this.players = transform(ws.get()).cards
     }*/
 
-    let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.inJail, this.startAmount);
-    let turnData! : (PlayerType | CardType | number[])[];
-    this.owner = this.players[this.playerIndex];
-    let colorSet = this.getCard(this.players[this.playerIndex].position) as Cities
+    if (this.lock && !this.players[this.playerIndex].bankRupted || this.canEnd && !this.players[this.playerIndex].bankRupted) {
+      this.lock = false;
+      let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.inJail, this.startAmount);
+      let colorSet = this.getCard(this.players[this.playerIndex].position) as Cities
+      let prisonLaunch;
+      let result! : (boolean | number)[];
+  
+      if (!this.players[this.playerIndex].inJail) {
+        this.turnData = playerActions.turn(this.ndBices, this.allCardsOwned(colorSet.color));
+        this.canEnd = playerActions.checkMove(this.turnData[0] as number[]);
+      }
+      
+      if (this.players[this.playerIndex].inJail) {
+        console.log(prisonLaunch);
+        prisonLaunch = playerActions.launchdice(this.ndBices)[0];
+        console.log(prisonLaunch);
+        result = playerActions.checkJail(this.players, this.playerIndex, this.lock, prisonLaunch);
+      }
+      
+      this.owner = this.players[this.playerIndex];
+      this.canTurn = true;
+  
+      this.prisonLaunch = prisonLaunch;
+    }
 
-    if (!this.players[this.playerIndex].inJail) turnData = playerActions.turn(this.ndBices, this.allCardsOwned(colorSet.color));
-
-    let prisonLaunch = playerActions.launchdice(this.ndBices)[0];
-
-    this.lock = false;
-
-    this.turnData = turnData;
-    this.prisonLaunch = prisonLaunch;
-
-    return [turnData, prisonLaunch];
+    if (this.end()) {
+      console.log("lol");
+    }
   }
   
   checkAction(action : string){
@@ -214,18 +236,22 @@ export class Game {
       case "end turn":
         this.lock = true;
         this.owner = undefined;
-        if (this.players[this.playerIndex].inJail) this.lock = playerActions.checkJail(this.players, this.ndBices, this.playerIndex, this.lock, action, this.prisonLaunch);
-        if (!this.players[this.playerIndex].inJail) this.playerIndex = playerActions.checkMove(this.players, this.turnData[0] as number[], this.playerIndex, this.lock, this.owner);
+        if (this.players[this.playerIndex].bankRupted) this.playerIndex = playerActions.changePlayer(this.players, this.playerIndex);
+        if (!this.players[this.playerIndex].inJail && this.canTurn && !this.canEnd) this.playerIndex = playerActions.changePlayer(this.players, this.playerIndex);
+        this.canTurn = false;
         break;
     }
     
+    let paid;
     switch (action) {
       case "pay jail fee":
-        playerActions.jailFee(50, "jailFee")
+        paid = playerActions.jailFee(50, "jailFee")
+        this.playerIndex = playerActions.checkJail(this.players, this.playerIndex, this.lock, this.prisonLaunch, paid)[1] as number;
         this.lock = true;
         break;
       case "use card":
-        playerActions.jailFee(50, "use card")
+        paid = playerActions.jailFee(50, "use card")
+        this.playerIndex = playerActions.checkJail(this.players, this.playerIndex, this.lock, this.prisonLaunch, paid)[1] as number;
         this.lock = true;
       break;
     }
