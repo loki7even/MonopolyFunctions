@@ -180,8 +180,6 @@ export class Game {
     for (max; max > -1; max--){
       let count = L[max];
       while (X - S[max] >= 0) {
-        console.log("li ", X);
-        console.log("hum ", S[max]);
         X -= S[max];
         count ++;
       }
@@ -325,7 +323,7 @@ export class Game {
 
             case "inJail":
               this.players[this.playerIndex].inJail = true;
-              this.players[this.playerIndex].jailTime = 0;
+              this.players[this.playerIndex].jailTime = 1;
               this.players[this.playerIndex].position = 10;
             break;
 
@@ -342,7 +340,7 @@ export class Game {
           break;
         case "inJail":
           this.players[this.playerIndex].inJail = true;
-          this.players[this.playerIndex].jailTime = 0;
+          this.players[this.playerIndex].jailTime = 1;
           this.players[this.playerIndex].position = 10;
           break;
         case "start":
@@ -362,26 +360,40 @@ export class Game {
       let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.inJail, this.startAmount);
       let card = this.getCard(this.players[this.playerIndex].position) as Cities
       let prisonLaunch;
-      let result! : (boolean | number)[];
-  
+      this.canTurn = true;
+      
       if (!this.players[this.playerIndex].inJail) {
         this.turnData = playerActions.turn(this.ndBices, this.allCardsOwned(card.color), this.players);
         this.canEnd = playerActions.checkMove(this.turnData[0] as number[]);
+        this.players[this.playerIndex] = playerActions.jailed();
       }
       
+      this.owner = this.players[this.playerIndex];
+      
       if (this.players[this.playerIndex].inJail) {
-        prisonLaunch = playerActions.launchdice(this.ndBices)[0];
-        result = playerActions.checkJail(this.players, this.playerIndex, this.lock, prisonLaunch);
+        if (!this.players[this.playerIndex].jailTime) {
+          this.canTurn = false;
+          this.owner = undefined;
+          this.players[this.playerIndex].jailTime++;
+          this.playerIndex = playerActions.changePlayer(this.players, this.playerIndex)
+        }
+        else {
+          prisonLaunch = playerActions.launchdice(this.ndBices)[0];
+          if (playerActions.checkJail(prisonLaunch)) this.lock = false;
+          else if (this.players[this.playerIndex].jailTime - 1 < 3){
+            this.lock = true;
+            this.canTurn = false;
+            this.owner = undefined;
+            if (this.players[this.playerIndex].jailTime <= 3) this.playerIndex = playerActions.changePlayer(this.players, this.playerIndex);
+          }
+        }
       }
 
       if (this.getCard(this.players[this.playerIndex].position) instanceof Actions) this.turnActionsCard(this.getCard(this.players[this.playerIndex].position) as Actions);
       
-      this.owner = this.players[this.playerIndex];
-      this.canTurn = true;
-  
       this.prisonLaunch = prisonLaunch;
-      this.owner.distribution = this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], this.players[this.playerIndex].bankAmount)
-      return this.turnData
+      if (this.owner) this.owner.distribution = this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], this.players[this.playerIndex].bankAmount)
+      return this.turnData;
     }
 
     if (this.end()) {
@@ -395,7 +407,18 @@ export class Game {
     let card = this.getCard(this.players[this.playerIndex].position) as Cities
     let auctionCard = this.getCard(this.players[this.playerIndex].position) as Passive
     
+    let paid;
     switch (action) {
+      case "pay jail fee":
+        paid = playerActions.jailFee(50, "jailFee");
+        if(playerActions.checkJail(this.prisonLaunch, paid)) this.lock = false;
+        break;
+      case "use card":
+        paid = playerActions.jailFee(50, "use card", this.getCard(10) as Prison);
+        if (playerActions.checkJail(this.prisonLaunch, paid)) this.lock = false;
+        this.players[this.playerIndex].distribution = this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], this.players[this.playerIndex].bankAmount)
+        break;
+
       case "end turn":
         this.lock = true;
         this.owner = undefined;
@@ -407,21 +430,6 @@ export class Game {
         }
         this.canTurn = false;
         break;
-    }
-    
-    let paid;
-    switch (action) {
-      case "pay jail fee":
-        paid = playerActions.jailFee(50, "jailFee");
-        this.playerIndex = playerActions.checkJail(this.players, this.playerIndex, this.lock, this.prisonLaunch, paid)[1] as number;
-        this.lock = true;
-        break;
-      case "use card":
-        paid = playerActions.jailFee(50, "use card", this.getCard(10) as Prison);
-        this.playerIndex = playerActions.checkJail(this.players, this.playerIndex, this.lock, this.prisonLaunch, paid)[1] as number;
-        this.players[this.playerIndex].distribution = this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], this.players[this.playerIndex].bankAmount)
-          this.lock = true;
-      break;
     }
 
     if (this.getCard(this.players[this.playerIndex].position) instanceof Cities && this.owner != undefined && this.allCardsOwned(card.color)) {

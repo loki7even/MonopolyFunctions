@@ -1,6 +1,6 @@
 {
   "name": "monopoly_functions",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Projet monopoly",
   "main": "dist/index.js",
   "types": "src/index.d.ts",
@@ -10,7 +10,8 @@
     "lint": "eslint",
     "prepare": "npm run build",
     "version": "npm run format && git add -A src",
-    "postversion": "git push && git push --tags"
+    "postversion": "git push && git push --tags",
+    "install": "npm run build"
   },
   "repository": {
     "type": "git",

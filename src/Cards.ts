@@ -587,7 +587,7 @@ export let Cards_json : Array<any> = [
     {
       "type": "action",
       "name": "Go to prison",
-      "actionType": "injail",
+      "actionType": "inJail",
       "description": "You have to go to the prison !",
       "bg": "",
       "fg": "",

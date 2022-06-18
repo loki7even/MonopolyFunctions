@@ -50,32 +50,33 @@ class PlayerActions {
       this.player.jailTime --;
       return true;
     }
+    return false;
+  }
+
+  jailed() {
     if (this.player.jailTime == 0) {
       this.player.inJail = true;
       this.player.position = 10;
     }
-    return false;
+    return this.player;
   }
 
-  checkJail(players : PlayerType[], playerPos : number, lock : boolean, launch? : number[], paid? : boolean) {
+  checkJail(launch? : number[], paid? : boolean) {
     if (launch) {
-      if (launch[0] == launch[1] && this.player.jailTime < 3) {
+      if (launch[0] == launch[1] ) {
         this.player.inJail = false;
         this.player.jailTime = 3;
         this.player = this.movePlayer(launch[1], this.cards.length-1, this.startAmount);
-        lock = false
-        return [lock, playerPos];
+        return true;
       }
-      if (this.player.jailTime < 3) this.player.jailTime ++;
-      if ((this.player.jailTime == 3 && paid) || (this.player.jailTime == 3 && this.player.inJail && paid)) {
+      if (this.player.jailTime < 5) this.player.jailTime ++;
+      if ((this.player.jailTime >= 3 && paid) || (this.player.jailTime >= 3 && this.player.inJail && paid)) {
         this.player.inJail = false;
         this.player = this.movePlayer(launch[1], this.cards.length-1, this.startAmount);
-        lock = false
-        return [lock, playerPos];
+        return true;
       }
     }
-    if (!paid) playerPos = this.changePlayer(players, playerPos);
-    return [lock, playerPos];
+    return false;
   }
 
   randomIntFromInterval(min: number, max: number) {
