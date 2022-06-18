@@ -1,15 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Prison = void 0;
-const Actions_1 = require("./Actions");
-class Prison extends Actions_1.Actions {
-    constructor(name, actionType, description, position, players = []) {
-        super(name, actionType, description, position);
+class Prison {
+    constructor(name, description, position, owners) {
         this.name = name;
-        this.actionType = actionType;
         this.description = description;
         this.position = position;
-        this.players = [];
+        this.owners = owners;
     }
 }
 exports.Prison = Prison;

@@ -1,22 +1,23 @@
 import { PlayerType } from "../Player";
 import { Actions } from "./Actions";
+import { CardType, Passive } from "./CardsType";
 
-class Prison extends Actions {
-  players: PlayerType[];
+class Prison implements CardType{
+  name!: string;
+  description!: string;
+  position!: number;
+  owners!: PlayerType[];
 
   constructor(
     name: string,
-    actionType: string,
     description: string,
     position: number,
-    players: PlayerType[] = []
+    owners: PlayerType[]
   ) {
-    super(name, actionType, description, position);
     this.name = name;
-    this.actionType = actionType;
     this.description = description;
     this.position = position;
-    this.players = [];
+    this.owners = owners;
   }
 }
 

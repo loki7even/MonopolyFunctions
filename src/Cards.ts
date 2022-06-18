@@ -1,3 +1,161 @@
+let luckCards : Array<any> = [
+  {
+    "type": "goto",
+    "description": "Advance to Deauville",
+    "position": 39,
+  },
+  {
+    "type": "goto",
+    "description": "Advance to Go (collect ₩200)",
+    "position": 0,
+  },
+  {
+    "type": "goto",
+    "description": "Advance to Dieppe. If you pass Go, collect ₩200",
+    "position": 24,
+  },
+  {
+    "type": "goto",
+    "description": "Advance to Pointe du Hoc. If you pass Go, collect ₩200",
+    "position": 11,
+  },
+  {
+    "type": "gotoRail",
+    "description": "Advance to the nearest Railroad. If unowned, you may buy it from the Bank. If owned, pay wonder twice the rental to which they are otherwise entitled",
+    "position": 2,
+  },
+  {
+    "type": "gotoRail",
+    "description": "Advance to the nearest Railroad. If unowned, you may buy it from the Bank. If owned, pay wonder twice the rental to which they are otherwise entitled",
+    "position": 2,
+  },
+  {
+    "type": "gotoUtility",
+    "description": "Advance token to nearest Utility. If unowned, you may buy it from the Bank. If owned, throw dice and pay owner a total ten times amount thrown",
+    "position": 10,
+  },
+  {
+    "type": "pay",
+    "description": "Bank pays you dividend of ₩50",
+    "amount": 50,
+  },
+  {
+    "type": "goBack",
+    "description": "Go Back 3 Spaces",
+  },
+  {
+    "type": "inJail",
+    "description": "Go to Jail. Go directly to Jail, do not pass Go, do not collect ₩200",
+  },
+  {
+    "type": "repair",
+    "description": "Make general repairs on all your property. For each house pay ₩25. For each hotel pay ₩100",
+  },
+  {
+    "type": "pay",
+    "description": "Speeding fine ₩15",
+    "amount": -15,
+  },
+  {
+    "type": "goto",
+    "description": "Take a trip to Rouen Railroad. If you pass Go, collect ₩200.",
+    "position": 5,
+  },
+  {
+    "type": "freeJail",
+    "description": "You have a free jail card, you can use it to get free or trade it for money"
+  },
+  {
+    "type": "chairman",
+    "description": "You have been elected Chairman of the Board. Pay each player ₩50"
+  },
+  {
+    "type": "pay",
+    "description": "Your building loan matures. Collect ₩150",
+    "amount": 150
+  }
+]
+
+let companyCards : Array<any> = [
+
+  {
+    "type": "pay",
+    "description": "Holiday fund matures. Receive ₩100",
+    "amount": 100,
+  },
+  {
+    "type": "goto",
+    "description": "Advance to Go (collect ₩200)",
+    "position": 0,
+  },
+  {
+    "type": "pay",
+    "description": "Income tax refund. Collect ₩20",
+    "amount": 20,
+  },
+  {
+    "type": "pay",
+    "description": "Life insurance matures. Collect ₩100",
+    "amount": 100,
+  },
+  {
+    "type": "pay",
+    "description": "Pay hospital fees of ₩100",
+    "amount": -100,
+  },
+  {
+    "type": "pay",
+    "description": "Pay school fees of ₩50",
+    "amount": -50,
+  },
+  {
+    "type": "pay",
+    "description": "Receive ₩25 consultancy fee",
+    "amount": 25,
+  },
+  {
+    "type": "pay",
+    "description": "Bank error in your favor. Collect ₩200",
+    "amount": 200,
+  },
+  {
+    "type": "pay",
+    "description": "You have won second prize in a beauty contest. Collect ₩10",
+    "amount": 10
+  },
+  {
+    "type": "inJail",
+    "description": "Go to Jail. Go directly to Jail, do not pass Go, do not collect ₩200",
+  },
+  {
+    "type": "repair",
+    "description": "You are assessed for street repair. ₩40 per house. ₩115 per hotel",
+  },
+  {
+    "type": "pay",
+    "description": "Doctor's fee. Pay ₩50",
+    "amount": -50,
+  },
+  {
+    "type": "pay",
+    "description": "You inherit ₩100",
+    "amount": 100,
+  },
+  {
+    "type": "freeJail",
+    "description": "You have a free jail card, you can use it to get free or trade it for money"
+  },
+  {
+    "type": "birthday",
+    "description": "It is your birthday. Collect ₩10 from every player"
+  },
+  {
+    "type": "pay",
+    "description": "From sale of stock you get ₩50",
+    "amount": 50
+  }
+]
+
 export let Cards_json : Array<any> = [
   {
     "type": "cities",
@@ -266,8 +424,8 @@ export let Cards_json : Array<any> = [
   {
       "type": "action",
       "name": "caisse de communauté",
-      "actionType": "comunity",  
-      "description": "et a communauté",
+      "actionType": "community",  
+      "action": companyCards,
       "bg": "",
       "fg": "",
       "pos": 2
@@ -275,8 +433,8 @@ export let Cards_json : Array<any> = [
     {
       "type": "action",
       "name": "caisse de communauté",
-      "actionType": "comunity",
-      "description": "et a cmmonauty",
+      "actionType": "community",
+      "action": companyCards,
       "bg": "",
       "fg": "",
       "pos": 17
@@ -284,8 +442,8 @@ export let Cards_json : Array<any> = [
     {
       "type": "action",
       "name": "caisse de communauté",
-      "actionType": "comunity",
-      "description": "et a cmmonauty",
+      "actionType": "community",
+      "action": companyCards,
       "bg": "",
       "fg": "",
       "pos": 33
@@ -294,7 +452,7 @@ export let Cards_json : Array<any> = [
       "type": "action",
       "name": "luck",
       "actionType": "luck",
-      "description": "luck",
+      "action": luckCards,
       "bg": "",
       "fg": "",
       "pos": 7
@@ -303,7 +461,7 @@ export let Cards_json : Array<any> = [
       "type": "action",
       "name": "luck",
       "actionType": "luck",
-      "description": "luck",
+      "action": luckCards,
       "bg": "",
       "fg": "",
       "pos": 22
@@ -312,7 +470,7 @@ export let Cards_json : Array<any> = [
       "type": "action",
       "name": "luck",
       "actionType": "luck",
-      "description": "luck",
+      "action": luckCards,
       "bg": "",
       "fg": "",
       "pos": 36
@@ -328,9 +486,9 @@ export let Cards_json : Array<any> = [
     },
     {
       "type": "action",
-      "name": "taxe",
+      "name": "impôts sur le revenu",
       "actionType": "taxe",
-      "description": "income tax",
+      "action": 200,
       "bg": "",
       "fg": "",
       "pos": 4
@@ -405,7 +563,7 @@ export let Cards_json : Array<any> = [
       "type": "action",
       "name": "start",
       "actionType": "start",
-      "description": "start +200",
+      "description": "Receive a start amount of",
       "bg": "",
       "fg": "",
       "pos": 0
@@ -413,7 +571,6 @@ export let Cards_json : Array<any> = [
     {
       "type": "prison",
       "name": "jail",
-      "actionType": "jail",
       "description": "Just pass or go Jail",
       "bg": "",
       "fg": "",
@@ -421,18 +578,17 @@ export let Cards_json : Array<any> = [
     },
     {
       "type": "action",
-      "name": "freePark",
-      "actionType": "freePark",
-      "description": "get the money back",
+      "name": "Free parking",
+      "description": "You can stay here for a turn",
       "bg": "",
       "fg": "",
       "pos": 20
     },
     {
       "type": "action",
-      "name": "goto",
-      "actionType": "goto",
-      "description": "goto jail",
+      "name": "Go to prison",
+      "actionType": "injail",
+      "description": "You have to go to the prison !",
       "bg": "",
       "fg": "",
       "pos": 30

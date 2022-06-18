@@ -2,7 +2,6 @@
 import { CardType, Passive } from "../Cards/CardsType";
 import { Cities } from "../Cards/Cities";
 import { Companies } from "../Cards/Companies";
-import { Actions } from "../Cards/Actions";
 import { Prison } from "../Cards/Prison";
 import { PlayerType } from "./PlayerType";
 
@@ -20,7 +19,7 @@ class PlayerActions {
     this.startAmount = startAmount;
   }
 
-  turn(dices: number, allCardsOwned : boolean) {
+  turn(dices: number, allCardsOwned : boolean, players: PlayerType[]) {
     let launch =  this.launchdice(dices);
 
     this.player = this.movePlayer(launch[1], this.cards.length-1, this.startAmount);
@@ -33,9 +32,7 @@ class PlayerActions {
     
     this.card = cards[0];
 
-    if(this.card instanceof Actions) this.actionCard(this.card);
-
-    if(this.card instanceof Passive && this.card.owner != null) this.rent(this.card , this.card.propreties, dices, allCardsOwned);
+    if(this.card instanceof Passive && this.card.owner != null) this.rent(this.card , this.card.propreties, launch[1], allCardsOwned, players);
 
     return [launch[0], this.player, this.card];
   }
@@ -102,15 +99,15 @@ class PlayerActions {
   movePlayer(move: number, lenBoard: number, startAmount: number) {
     
     this.player.position += move;
-    if(this.player.position > lenBoard || this.player.position == 0) {
-      this.player.position -= lenBoard
-      this.player.bankAmount += startAmount
+    if(this.player.position > lenBoard) {
+      this.player.position -= lenBoard;
+      if (this.player.position != 0) this.player.bankAmount += startAmount;
     }
     return this.player;
   }
   
   buy(card : Passive) {
-    if (card.owner == null && !this.bankrupt(card.cost)) {
+    if (card.owner == null && !this.bankrupt(this.player, card.cost)) {
       if (card instanceof Companies && card.propreties < card.multiplier.length && !card.bought) {
         card.propreties += 1;
         card.bought = true;
@@ -121,7 +118,7 @@ class PlayerActions {
   }
 
   upgrade(card : Passive) {
-    if (card.owner == this.player && !this.bankrupt(card.cost)) {
+    if (card.owner == this.player && !this.bankrupt(this.player, card.cost)) {
       if (card instanceof Cities && card.propreties < card.rent.length) {
         if (card.propreties == 4) this.player.bankAmount -= 4*card.buildCost;
         this.player.bankAmount -= card.buildCost;
@@ -137,12 +134,10 @@ class PlayerActions {
     }
   }
   
-  sellBuilding(card : Passive) {
+  sellBuilding(card : Cities) {
     if (card.owner == this.player && card.propreties != 0) {
-      if (card instanceof Cities) {
         if (card.propreties == 5) this.player.bankAmount += 4*(card.buildCost/2);
         this.player.bankAmount += card.buildCost/2;
-      }
       card.propreties--;
     }
   }
@@ -165,13 +160,13 @@ class PlayerActions {
   }
 
   unMortage(card : Passive) {
-    if (card.mortage && !this.bankrupt(((card.cost/2) + ((card.cost/2)*0.1)))) {
+    if (card.mortage && !this.bankrupt(this.player, ((card.cost/2) + ((card.cost/2)*0.1)))) {
       card.mortage = false;
       this.player.bankAmount -= ((card.cost/2) + ((card.cost/2)*0.1));
     }
   }
   
-  rent(card : Passive, amount : number, dices : number, allCardsOwned : boolean) {
+  rent(card : Passive, amount : number, dices : number, allCardsOwned : boolean, players: PlayerType[]) {
     if (card.owner != null && card.owner != this.player && !card.mortage) {
       if (card instanceof Cities) {
         if (amount == 0) {
@@ -199,12 +194,12 @@ class PlayerActions {
         }
       }
     }
-    this.endGame();
+    this.endGame(players);
   }
   
   jailFee(amount : number, action : string, card? : Prison){
     let paid = false;
-    if (!this.bankrupt(amount)) {
+    if (!this.bankrupt(this.player, amount)) {
       switch (action) {
       case "jailFee":
         this.player.inJail = false;
@@ -213,13 +208,20 @@ class PlayerActions {
           paid = true;
           break;
         case "use card":
-          this.player.inJail = false;
-          this.player.jailTime = 3;
-          card?.players.forEach( player => {
-            if (player = this.player) {
-              player;
-            }
-          });
+          if (card?.owners != null && card.owners.includes(this.player)) {
+            this.player.inJail = false;
+            this.player.jailTime = 3;
+            let temp! : PlayerType[];
+            let count = 1;
+            card?.owners.forEach(player => {
+              temp.push(player);
+              if(player == this.player && count > 0) {
+                temp.pop();
+                count--;
+              }
+            });
+            card.owners = temp;
+          }
           paid = true;
           break;
         }
@@ -227,29 +229,45 @@ class PlayerActions {
     return paid;
   }
 
-  auction(card : Passive, players: [PlayerType], totalBid: number, ) {
-    if (card.owner != null) {
-      totalBid
+  bid(amount : number){
+    if (this.player.bankAmount - amount > 0) {
+      return amount
     }
-    return totalBid;
   }
 
-  loan() {
-
+  loan(amount? : number) {
+    if (amount && this.player.loan - amount > 0) {
+      this.player.bankAmount += amount;
+      this.player.loan -= amount;
+    }
   }
 
-  bankrupt(price : number) : boolean {
+  payLoan() {
+    if ((this.player.bankAmount - 2000 - this.player.loan) > 0) {
+      this.player.bankAmount -= (2000 - this.player.loan);
+      this.player.loan = 2000;
+    }
+  }
+
+  trade(card : Passive, player? : PlayerType) {
+    if (player && card.owner == this.player && player.bankAmount - player.bid > 0 ) {
+      card.owner = player;
+      player.bankAmount -= player.bid;
+      this.player.bankAmount += player.bid;
+      player.bid = 0;
+    }
+  }
+
+  bankrupt(player: PlayerType, price : number) : boolean {
     return (this.player.bankAmount - price < 0);
   }
 
-  endGame() {
-    if(this.bankrupt(0)) {
-      this.player.bankRupted = true;
-    }
-  }
-
-  actionCard(card : Actions) {
-
+  endGame(players: PlayerType[]) {
+    players.forEach(player => {
+      if(this.bankrupt(player, 0)) {
+        player.bankRupted = true;
+      }
+    })
   }
 }
 

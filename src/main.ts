@@ -44,10 +44,13 @@ export class Game {
       let playerObj : PlayerType = {
         name: (player as string ? JSON.parse(player): player ).name,
         bankAmount: bankAmount,
+        loan: 2000,
         position: 0,
         inJail: false,
-        jailTime: 1,
+        jailTime: 3,
         bankRupted: false,
+        bid: 0,
+        distribution: this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], bankAmount) as unknown as number[],
         ia: player.ia
       }
       this.players.push(playerObj)
@@ -64,7 +67,8 @@ export class Game {
       switch (card.type) {
         case "action":
           cardObj = new Actions(card.name, 
-                              card.actionType, 
+                              card.actionType,
+                              card.action,
                               card.description,
                               card.pos)
           break;
@@ -80,11 +84,7 @@ export class Game {
                             card.owner)
           break;
         case "prison":
-          cardObj = new Prison(card.name, 
-                            card.actionType, 
-                            card.description, 
-                            card.pos)
-          break;
+          cardObj = new Prison(card.name, card.description, card.position, card.owner)
         
         case "companies":
             cardObj = new Companies(card.name, 
@@ -162,64 +162,226 @@ export class Game {
     return (count == this.players.length - 1) 
   }
 
-  moneyDistribution() {
-    
-
+  moneyDistribution(S: number[], X: number) {
+    let max = S.length-1;
+    let L: number[];
+    L = [5, 5, 5, 6, 2, 2, 2];
+    if(X >= 1500 ) X -= 1500;
+    else {
+      for (let i = 0; i < L.length; i++){
+        let countMemory = L[i];
+        while (X-S[i] >= 0 && countMemory > 0) {
+          X -= S[i];
+          countMemory--;
+        }
+        L[i] -= countMemory;
+      }
+    }
+    for (max; max > -1; max--){
+      let count = L[max];
+      while (X - S[max] >= 0) {
+        console.log("li ", X);
+        console.log("hum ", S[max]);
+        X -= S[max];
+        count ++;
+      }
+      L[max] = count;
+    }
+    return L;
   }
 
-  turnActionsCard(card: Actions, player: PlayerType){
+  auction(card : Passive, bids? : number[]) {
+    bids?.push(this.players[this.playerIndex].bid);
+    if (bids && bids.length == this.players.length) {
+      let finalBid = 0;
+      bids.forEach(bid => {
+        if (bid> finalBid) {
+          finalBid = bid;
+        }
+      })
+      this.players.forEach(player => {
+        if (player.bid == finalBid && player.bid - finalBid > 0) {
+          card.owner = player;
+          player.bid = 0;
+        }
+      })
+    }
+  }
+
+  turnActionsCard(card: Actions){
+    let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.inJail, this.startAmount);
+
      switch (card.actionType) {
-        case 'goto':
-        //   let breakInBad = card as Prison;
-        //   breakInBad.players.push(player)
-        //   this.updatePlayer([player])
-        //   this.updateCards([breakInBad])
+        case "luck":
+          let randomLuck = Math.floor(Math.random() * 16);
+          console.log(card.action[randomLuck]);
+          switch (card.action[randomLuck].type) {
+            case "goto":
+              if(this.players[this.playerIndex].position > card.action[randomLuck].position) this.players[this.playerIndex].bankAmount += this.startAmount;
+              this.players[this.playerIndex].position = card.action[randomLuck].position;
+              break;
+            case "pay":
+              this.players[this.playerIndex].bankAmount += card.action[randomLuck].amount;
+              this.players[this.playerIndex].distribution = this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], this.players[this.playerIndex].bankAmount)
+              playerActions.endGame(this.players);
+              break;
+
+            case "freeJail":
+              let prison = this.getCard(10) as Prison;
+              prison.owners.push(this.players[this.playerIndex])
+              break;
+
+            case "repair":
+              this.cards.forEach(card =>{
+                if (card instanceof Cities && card.owner == this.players[this.playerIndex]) {
+                  if (card.propreties == 5) this.players[this.playerIndex].bankAmount -= 100;
+                  else {
+                    this.players[this.playerIndex].bankAmount -= 25*card.propreties;
+                  }
+                }
+              })
+              this.players[this.playerIndex].distribution = this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], this.players[this.playerIndex].bankAmount)
+              playerActions.endGame(this.players);
+              break;
+
+            case "inJail":
+              this.players[this.playerIndex].inJail = true;
+              this.players[this.playerIndex].jailTime = 0;
+              this.players[this.playerIndex].position = 10;
+            break;
+
+            case "goBack":
+              this.players[this.playerIndex].position -= 3;
+              if (this.players[this.playerIndex].position - 3 < 0) this.players[this.playerIndex].position = 40 + (this.players[this.playerIndex].position - 3);
+              this.players[this.playerIndex].distribution = this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], this.players[this.playerIndex].bankAmount)
+              break;
+
+            case "gotoUtility":
+              if (this.players[this.playerIndex].position > 21) this.players[this.playerIndex].position = 38;
+              else this.players[this.playerIndex].position = 4;
+              let dices = this.turnData[0] as number[];
+              let sumDices = dices[0] + dices[1];
+              playerActions.rent(this.getCard(this.players[this.playerIndex].position) as Passive, 2, sumDices, true, this.players);
+              this.players[this.playerIndex].distribution = this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], this.players[this.playerIndex].bankAmount)
+              playerActions.endGame(this.players);
+              break;
+
+            case "gotoRail":
+              let count = 0;
+              let railCard = this.getCard(this.players[this.playerIndex].position) as Companies;
+              while (this.players[this.playerIndex].position - 10 > 0) {
+                count++;
+                this.players[this.playerIndex].position -= 10;
+              }
+              this.players[this.playerIndex].position = 5 + 10*count;
+              playerActions.rent(this.getCard(this.players[this.playerIndex].position) as Passive, railCard.propreties, this.ndBices, true, this.players);
+              playerActions.rent(this.getCard(this.players[this.playerIndex].position) as Passive, railCard.propreties, this.ndBices, true, this.players);
+              this.players[this.playerIndex].distribution = this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], this.players[this.playerIndex].bankAmount)
+              console.log(card.action[randomLuck].description);
+              break;
+
+            case "chairman":
+              this.players.forEach(player => {
+                if (player != this.players[this.playerIndex]) {
+                  this.players[this.playerIndex].bankAmount -= 50;
+                  player.bankAmount += 50;
+                }
+                this.players[this.playerIndex].distribution = this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], player.bankAmount)
+              })
+              playerActions.endGame(this.players);
+              break;
+          }
           break;
-        case 'freePark':
-          // player.bankAmount += this.center;
-          // this.updatePlayer([player])
+        
+        case "community":
+          let randomCommunity = Math.floor(Math.random() * 16);
+          console.log(card.action[randomCommunity]);
+          switch (card.action[randomCommunity].type) {
+            case "goto":
+              this.players[this.playerIndex].position = card.action[randomCommunity].position;
+              break;
+            case "pay":
+              this.players[this.playerIndex].bankAmount += card.action[randomCommunity].amount;
+              this.players[this.playerIndex].distribution = this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], this.players[this.playerIndex].bankAmount)
+              playerActions.endGame(this.players);
+              break;
+
+            case "freeJail":
+              let prison = this.getCard(10) as Prison;
+              prison.owners.push(this.players[this.playerIndex])
+              break;
+
+            case "repair":
+              this.cards.forEach(card =>{
+                if (card instanceof Cities) {
+                  if (card.propreties == 5) this.players[this.playerIndex].bankAmount -= 115;
+                  else {
+                    this.players[this.playerIndex].bankAmount -= 40*card.propreties;
+                  }
+                }
+              })
+              playerActions.endGame(this.players);
+              break;
+
+            case "inJail":
+              this.players[this.playerIndex].inJail = true;
+              this.players[this.playerIndex].jailTime = 0;
+              this.players[this.playerIndex].position = 10;
+            break;
+
+            case "birthday":
+              this.players.forEach(player => {
+                if (player != this.players[this.playerIndex]) {
+                  player.bankAmount -= 10;
+                  this.players[this.playerIndex].bankAmount += 10;
+                }
+              })
+              playerActions.endGame(this.players);
+              break;
+          }
           break;
-        case 'inJail':
+        case "inJail":
+          this.players[this.playerIndex].inJail = true;
+          this.players[this.playerIndex].jailTime = 0;
+          this.players[this.playerIndex].position = 10;
           break;
-        case 'start':
-          // player.bankAmount += this.startAmount
-          // this.updatePlayer([player])
+        case "start":
+          this.players[this.playerIndex].bankAmount += this.startAmount;
           break;
+        case "taxe":
+          this.players[this.playerIndex].bankAmount -= 200;
        default:
          break;
      }
   }
 
-  turn() {    
-    /* if(this.ws) 
-    {
-      this.cards = transform(ws.get()).players 
-      this.players = transform(ws.get()).cards
-    }*/
+  turn() {
 
     if (this.lock && !this.players[this.playerIndex].bankRupted || this.canEnd && !this.players[this.playerIndex].bankRupted) {
       this.lock = false;
       let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.inJail, this.startAmount);
-      let colorSet = this.getCard(this.players[this.playerIndex].position) as Cities
+      let card = this.getCard(this.players[this.playerIndex].position) as Cities
       let prisonLaunch;
       let result! : (boolean | number)[];
   
       if (!this.players[this.playerIndex].inJail) {
-        this.turnData = playerActions.turn(this.ndBices, this.allCardsOwned(colorSet.color));
+        this.turnData = playerActions.turn(this.ndBices, this.allCardsOwned(card.color), this.players);
         this.canEnd = playerActions.checkMove(this.turnData[0] as number[]);
       }
       
       if (this.players[this.playerIndex].inJail) {
-        console.log(prisonLaunch);
         prisonLaunch = playerActions.launchdice(this.ndBices)[0];
-        console.log(prisonLaunch);
         result = playerActions.checkJail(this.players, this.playerIndex, this.lock, prisonLaunch);
       }
+
+      if (this.getCard(this.players[this.playerIndex].position) instanceof Actions) this.turnActionsCard(this.getCard(this.players[this.playerIndex].position) as Actions);
       
       this.owner = this.players[this.playerIndex];
       this.canTurn = true;
   
       this.prisonLaunch = prisonLaunch;
+      this.owner.distribution = this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], this.players[this.playerIndex].bankAmount)
+      return this.turnData
     }
 
     if (this.end()) {
@@ -227,17 +389,22 @@ export class Game {
     }
   }
   
-  checkAction(action : string){
+  checkAction(action : string, bids? : number[], player?: PlayerType, amount? : number){
     
     let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.inJail, this.startAmount);
-    let colorSet = this.getCard(this.players[this.playerIndex].position) as Cities
+    let card = this.getCard(this.players[this.playerIndex].position) as Cities
+    let auctionCard = this.getCard(this.players[this.playerIndex].position) as Passive
     
     switch (action) {
       case "end turn":
         this.lock = true;
         this.owner = undefined;
         if (this.players[this.playerIndex].bankRupted) this.playerIndex = playerActions.changePlayer(this.players, this.playerIndex);
-        if (!this.players[this.playerIndex].inJail && this.canTurn && !this.canEnd) this.playerIndex = playerActions.changePlayer(this.players, this.playerIndex);
+        if (!this.players[this.playerIndex].inJail && this.canTurn && !this.canEnd) {
+          if (auctionCard.owner == null ) this.auction(auctionCard, bids);
+          this.players[this.playerIndex].distribution = this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], this.players[this.playerIndex].bankAmount)
+          this.playerIndex = playerActions.changePlayer(this.players, this.playerIndex);
+        }
         this.canTurn = false;
         break;
     }
@@ -245,21 +412,23 @@ export class Game {
     let paid;
     switch (action) {
       case "pay jail fee":
-        paid = playerActions.jailFee(50, "jailFee")
+        paid = playerActions.jailFee(50, "jailFee");
         this.playerIndex = playerActions.checkJail(this.players, this.playerIndex, this.lock, this.prisonLaunch, paid)[1] as number;
         this.lock = true;
         break;
       case "use card":
-        paid = playerActions.jailFee(50, "use card")
+        paid = playerActions.jailFee(50, "use card", this.getCard(10) as Prison);
         this.playerIndex = playerActions.checkJail(this.players, this.playerIndex, this.lock, this.prisonLaunch, paid)[1] as number;
-        this.lock = true;
+        this.players[this.playerIndex].distribution = this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], this.players[this.playerIndex].bankAmount)
+          this.lock = true;
       break;
     }
 
-    if (this.getCard(this.players[this.playerIndex].position) instanceof Cities && this.owner != undefined && this.allCardsOwned(colorSet.color)) {
+    if (this.getCard(this.players[this.playerIndex].position) instanceof Cities && this.owner != undefined && this.allCardsOwned(card.color)) {
       switch (action) {
         case "upgrade":
           playerActions.upgrade(this.getCard(this.players[this.playerIndex].position) as Passive);
+          this.owner.distribution = this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], this.players[this.playerIndex].bankAmount)
           this.owner = undefined;
           break;
       }
@@ -269,40 +438,55 @@ export class Game {
       switch (action) {
         case "buy":
           playerActions.buy(this.getCard(this.players[this.playerIndex].position) as Passive)
+          this.owner.distribution = this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], this.players[this.playerIndex].bankAmount)
           this.owner = undefined;
           break;
 
         case "sell property":
           playerActions.sellProperty(this.getCard(this.players[this.playerIndex].position) as Passive)
+          this.owner.distribution = this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], this.players[this.playerIndex].bankAmount)
           this.owner = undefined;
           break;
 
         case "mortage":
-          playerActions.mortage(this.getCard(this.players[this.playerIndex].position) as Passive, this.allCardsOwned(colorSet.color));
+          playerActions.mortage(this.getCard(this.players[this.playerIndex].position) as Passive, this.allCardsOwned(card.color));
+          this.owner.distribution = this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], this.players[this.playerIndex].bankAmount)
           this.owner = undefined;
           break;
 
         case "unmortage":
           playerActions.unMortage(this.getCard(this.players[this.playerIndex].position) as Passive);
+          this.owner.distribution = this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], this.players[this.playerIndex].bankAmount)
           this.owner = undefined;
           break;
 
         case "sell building":
-          playerActions.sellBuilding(this.getCard(this.players[this.playerIndex].position) as Passive);
+          playerActions.sellBuilding(this.getCard(this.players[this.playerIndex].position) as Cities);
+          this.owner.distribution = this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], this.players[this.playerIndex].bankAmount)
           this.owner = undefined;
           break;
 
         case "sell all buildings":
-          playerActions.sellAllBuildings(colorSet.color);
+          playerActions.sellAllBuildings(card.color);
+          this.owner.distribution = this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], this.players[this.playerIndex].bankAmount)
           this.owner = undefined;
           break;
 
-        case "auction":
-          // playerActions.auction(this.getCard(this.players[this.playerIndex].position) as Passive);
+        case "trade":
+          playerActions.trade(this.getCard(this.players[this.playerIndex].position) as Passive, player);
+          this.owner.distribution = this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], this.players[this.playerIndex].bankAmount)
           this.owner = undefined;
           break;
         
         case "loan money":
+          playerActions.loan(amount);
+          this.owner.distribution = this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], this.players[this.playerIndex].bankAmount)
+          this.owner = undefined;
+          break;
+
+        case "pay loan":
+          playerActions.payLoan();
+          this.owner.distribution = this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], this.players[this.playerIndex].bankAmount)
           this.owner = undefined;
           break;
       }
