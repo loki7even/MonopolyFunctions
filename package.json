@@ -8,7 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc --declaration",
     "lint": "eslint",
-    "prepare": "npx tsc --declaration",
+    "prepare": "npm run build",
+    "install": "npm run build"
     "version": "npm run format && git add -A src",
     "postversion": "git push && git push --tags"
   },
