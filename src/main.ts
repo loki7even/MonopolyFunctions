@@ -120,7 +120,7 @@ export class Game {
     return Card;
   }
 
-  getCards() {
+  getActionCardsDescription() {
     return this.cards;
   }
 
@@ -208,11 +208,11 @@ export class Game {
 
   turnActionsCard(card: Actions){
     let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.inJail, this.startAmount);
-
+    let rand! : number;
      switch (card.actionType) {
         case "luck":
           let randomLuck = Math.floor(Math.random() * 16);
-          console.log(card.action[randomLuck]);
+          rand = randomLuck;
           switch (card.action[randomLuck].type) {
             case "goto":
               if(this.players[this.playerIndex].position > card.action[randomLuck].position) this.players[this.playerIndex].bankAmount += this.startAmount;
@@ -275,7 +275,6 @@ export class Game {
               playerActions.rent(this.getCard(this.players[this.playerIndex].position) as Passive, railCard.propreties, this.ndBices, true, this.players);
               playerActions.rent(this.getCard(this.players[this.playerIndex].position) as Passive, railCard.propreties, this.ndBices, true, this.players);
               this.players[this.playerIndex].distribution = this.moneyDistribution([1, 5, 10, 20, 50, 100, 500], this.players[this.playerIndex].bankAmount)
-              console.log(card.action[randomLuck].description);
               break;
 
             case "chairman":
@@ -293,7 +292,7 @@ export class Game {
         
         case "community":
           let randomCommunity = Math.floor(Math.random() * 16);
-          console.log(card.action[randomCommunity]);
+          rand = randomCommunity;
           switch (card.action[randomCommunity].type) {
             case "goto":
               this.players[this.playerIndex].position = card.action[randomCommunity].position;
@@ -351,11 +350,12 @@ export class Game {
        default:
          break;
      }
+    return rand;
   }
 
   turn() {
 
-    if (this.lock && !this.players[this.playerIndex].bankRupted || this.canEnd && !this.players[this.playerIndex].bankRupted) {
+    if (this.lock && !this.players[this.playerIndex].bankRupted && !this.end() || this.canEnd && !this.players[this.playerIndex].bankRupted && !this.end()) {
       this.lock = false;
       let playerActions = new PlayerActions(this.players[this.playerIndex], this.cards, this.inJail, this.startAmount);
       let card = this.getCard(this.players[this.playerIndex].position) as Cities
@@ -397,7 +397,7 @@ export class Game {
     }
 
     if (this.end()) {
-      console.log("lol");
+      return this.players[this.playerIndex];
     }
   }
   
