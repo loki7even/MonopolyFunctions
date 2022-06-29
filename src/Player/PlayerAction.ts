@@ -171,11 +171,14 @@ class PlayerActions {
     if (card.owner != null && card.owner != this.player && !card.mortage) {
       if (card instanceof Cities) {
         if (amount == 0) {
+          console.log(allCardsOwned);
           this.player.bankAmount -= (allCardsOwned ? 2*card.rent[amount] : card.rent[amount]);
           card.owner.bankAmount += (allCardsOwned ? 2*card.rent[amount] : card.rent[amount]);
         }
-        this.player.bankAmount -= card.rent[amount];
-        card.owner.bankAmount += card.rent[amount];
+        else {
+          this.player.bankAmount -= card.rent[amount];
+          card.owner.bankAmount += card.rent[amount];
+        }
       }
       if (card instanceof Companies) {
         if (amount <= card.multiplier.length && card.multiplier.length == 3) {
