@@ -116,7 +116,7 @@ export class Game {
     return Card;
   }
 
-  getCards() {
+  getActionCardsDescription() {
     return this.cards;
   }
 
@@ -392,7 +392,7 @@ export class Game {
     }
 
     if (this.end()) {
-      console.log('lol');
+      return this.players[this.playerIndex];
     }
   }
 

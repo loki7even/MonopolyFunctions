@@ -11,8 +11,7 @@
     "prepare": "npm run build",
     "install": "npm run build",
     "version": "npm run format && git add -A src",
-    "postversion": "git push && git push --tags",
-    "install": "npm run build"
+    "postversion": "git push && git push --tags"
   },
   "repository": {
     "type": "git",
