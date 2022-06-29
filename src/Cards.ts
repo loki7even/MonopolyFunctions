@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const luckCards : Array<any> = [
   {
     'type': 'goto',
@@ -73,8 +74,8 @@ const luckCards : Array<any> = [
     'type': 'pay',
     'description': 'Your building loan matures. Collect ₩150',
     'amount': 150,
-  }
-]
+  },
+];
 
 const companyCards : Array<any> = [
 
@@ -153,9 +154,10 @@ const companyCards : Array<any> = [
     'type': 'pay',
     'description': 'From sale of stock you get ₩50',
     'amount': 50,
-  }
-]
+  },
+];
 
+// eslint-disable-next-line camelcase
 export const Cards_json : Array<any> = [
   {
     'type': 'cities',
@@ -592,9 +594,10 @@ export const Cards_json : Array<any> = [
     'bg': '',
     'fg': '',
     'pos': 30,
-  }
+  },
 ];
 
-export default{
+export default {
+  // eslint-disable-next-line camelcase
   Cards_json,
-}
+};

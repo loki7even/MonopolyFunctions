@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /* eslint-disable */
-const CardsType_1 = require("../Cards/CardsType");
-const Cities_1 = require("../Cards/Cities");
-const Companies_1 = require("../Cards/Companies");
+const CardsType_1 = require("../CardTypes/CardsType");
+const Cities_1 = require("../CardTypes/Cities");
+const Companies_1 = require("../CardTypes/Companies");
 class PlayerActions {
     constructor(player, cards, inJail, startAmount) {
         this.player = player;

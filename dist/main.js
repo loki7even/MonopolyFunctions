@@ -7,10 +7,11 @@ exports.transform = exports.Game = void 0;
 /* eslint-disable max-len */
 /* eslint-disable require-jsdoc */
 const Cards_1 = __importDefault(require("./Cards"));
-const Actions_1 = require("./Cards/Actions");
-const Cities_1 = require("./Cards/Cities");
-const Companies_1 = require("./Cards/Companies");
-const Prison_1 = require("./Cards/Prison");
+const Actions_1 = require("./CardTypes/Actions");
+const CardsType_1 = require("./CardTypes/CardsType");
+const Cities_1 = require("./CardTypes/Cities");
+const Companies_1 = require("./CardTypes/Companies");
+const Prison_1 = require("./CardTypes/Prison");
 const PlayerAction_1 = __importDefault(require("./Player/PlayerAction"));
 class Game {
     constructor(players, cards = Cards_1.default.Cards_json, bankAmount = 1500, ndbices = 2, startAmount = 200, inJail = false, ...partyParam) {
@@ -81,8 +82,21 @@ class Game {
         });
         return Card;
     }
-    getCards() {
-        return this.cards;
+    // getActionCardsDescription() {
+    //   return this.cards;
+    // }
+    getPlayerCards() {
+        let cardList = [];
+        this.cards.forEach((card) => {
+            if (card instanceof CardsType_1.Passive && card.owner == this.players[this.playerIndex]) {
+                cardList.push(card.name);
+            }
+        });
+        console.log(cardList);
+        return cardList;
+    }
+    getCityCard(card) {
+        return card;
     }
     allCardsOwned(cardColor) {
         let count = 0;
@@ -181,7 +195,7 @@ class Game {
                         playerActions.endGame(this.players);
                         break;
                     case 'freeJail':
-                        const prison = this.getCard(10);
+                        let prison = this.getCard(10);
                         prison.owners.push(this.players[this.playerIndex]);
                         break;
                     case 'repair':
@@ -257,7 +271,7 @@ class Game {
                         playerActions.endGame(this.players);
                         break;
                     case 'freeJail':
-                        const prison = this.getCard(10);
+                        let prison = this.getCard(10);
                         prison.owners.push(this.players[this.playerIndex]);
                         break;
                     case 'repair':
@@ -343,7 +357,7 @@ class Game {
             return this.turnData;
         }
         if (this.end()) {
-            console.log('lol');
+            return this.players[this.playerIndex];
         }
     }
     // eslint-disable-next-line require-jsdoc

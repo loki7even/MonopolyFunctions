@@ -1,11 +1,11 @@
 /* eslint-disable max-len */
 /* eslint-disable require-jsdoc */
 import Cards from './Cards';
-import {Actions} from './Cards/Actions';
-import {CardType, Passive} from './Cards/CardsType';
-import {Cities} from './Cards/Cities';
-import {Companies} from './Cards/Companies';
-import {Prison} from './Cards/Prison';
+import {Actions} from './CardTypes/Actions';
+import {CardType, Passive} from './CardTypes/CardsType';
+import {Cities} from './CardTypes/Cities';
+import {Companies} from './CardTypes/Companies';
+import {Prison} from './CardTypes/Prison';
 import {PlayerType} from './Player';
 import PlayerActions from './Player/PlayerAction';
 
@@ -116,8 +116,23 @@ export class Game {
     return Card;
   }
 
-  getActionCardsDescription() {
-    return this.cards;
+  // getActionCardsDescription() {
+  //   return this.cards;
+  // }
+
+  getPlayerCards() {
+    let cardList: string[] = [];
+    this.cards.forEach((card) => {
+      if (card instanceof Passive && card.owner == this.players[this.playerIndex]) {
+        cardList.push(card.name);
+      }
+    });
+    console.log(cardList);
+    return cardList;
+  }
+
+  getCityCard(card: CardType) {
+    return card as Cities;
   }
 
   allCardsOwned(cardColor? : string) {
@@ -221,7 +236,7 @@ export class Game {
             break;
 
           case 'freeJail':
-            const prison = this.getCard(10) as Prison;
+            let prison = this.getCard(10) as Prison;
             prison.owners.push(this.players[this.playerIndex]);
             break;
 
@@ -301,7 +316,7 @@ export class Game {
             break;
 
           case 'freeJail':
-            const prison = this.getCard(10) as Prison;
+            let prison = this.getCard(10) as Prison;
             prison.owners.push(this.players[this.playerIndex]);
             break;
 

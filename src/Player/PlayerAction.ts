@@ -1,8 +1,8 @@
 /* eslint-disable */
-import { CardType, Passive } from "../Cards/CardsType";
-import { Cities } from "../Cards/Cities";
-import { Companies } from "../Cards/Companies";
-import { Prison } from "../Cards/Prison";
+import { CardType, Passive } from "../CardTypes/CardsType";
+import { Cities } from "../CardTypes/Cities";
+import { Companies } from "../CardTypes/Companies";
+import { Prison } from "../CardTypes/Prison";
 import { PlayerType } from "./PlayerType";
 
 class PlayerActions {
